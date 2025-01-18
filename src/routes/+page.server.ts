@@ -2,8 +2,7 @@ import { saveResponseToFile } from '$lib/utils/saveResponse'
 import { readFile } from 'fs/promises'
 // @ts-ignore
 import path from 'path'
-
-const fs = require('fs').promises;
+import { promises as fs } from 'fs';
 
 async function fileExists(filePath: string) {
   try {
@@ -21,7 +20,7 @@ export async function load() {
   let height, width, rooms, extinguisherPowder, extinguisherCo2, extinguisherFoam, hoseReel, exits;
   let instructions = [], routes = [];
 
-      // FLOOR DATA
+    // FLOOR DATA
     if (await fileExists(floorDataFilePath)) {
       try {
         const floorDataFileData = await fs.readFile(floorDataFilePath, 'utf-8');
@@ -90,7 +89,7 @@ export const actions = {
    const yArr = (y! as string).split(",")
    const coordinates = []
    for (let i = 0; i < xArr.length-1; i++) {
-    coordinates.push([(xArr[i] as unknown as number), (yArr[i] as unknown as number)])
+    coordinates.push([Number(xArr[i]), Number(yArr[i])])
    }
 
    // Validate inputs
