@@ -39,13 +39,37 @@
 		imageHeight / 2,
 		imageWidth / 2,
 	]
+
+	//FIRE
 	let fireXCoords: string = ""
 	let fireYCoords: string = ""
 	let fireDescription: string
 
+	// PATH
+	let latlngs = [[700, 700], [700, 710], [690, 710], [680, 710], [670, 710], [660, 710],
+[650, 710], [650, 720], [640, 720], [640, 730], [640, 740], [640, 750],
+[640, 760], [630, 760], [630, 770], [620, 770], [620, 760], [620, 750],
+[610, 750], [600, 750], [600, 760], [600, 770], [600, 780], [590, 780],
+[590, 770], [580, 770], [580, 760], [590, 760], [590, 750], [580, 750],
+[580, 740], [570, 740], [570, 750], [560, 750], [560, 760], [570, 760],
+[570, 770], [560, 770], [560, 780], [560, 790], [570, 790], [570, 780],
+[580, 780], [580, 790], [580, 800], [590, 800], [600, 800], [600, 810],
+[600, 820], [600, 830], [610, 830], [620, 830], [620, 840], [630, 840],
+[640, 840], [650, 840], [650, 830], [660, 830], [670, 830], [680, 830],
+[690, 830], [690, 820], [700, 820], [710, 820], [710, 830], [710, 840],
+[720, 840], [730, 840], [730, 830], [720, 830], [720, 820], [720, 810],
+[720, 800], [710, 800], [710, 790], [720, 790], [730, 790], [730, 780],
+[720, 780], [720, 770], [710, 770], [710, 760], [720, 760], [730, 760],
+[740, 760], [740, 750], [750, 750], [750, 760], [760, 760], [760, 750],
+[760, 740], [750, 740], [740, 740], [740, 730], [750, 730], [750, 720],
+[760, 720], [760, 710], [760, 700], [760, 690]]
+
+
 	onMount(async () => {
 		if (browser) {
-			L = await import("leaflet"); // Dynamically import Leaflet
+			L = await import("leaflet")
+			// @ts-ignore
+			let polylineDecorator = import('leaflet-polylinedecorator')
 
 			const link = document.createElement("link");
 			link.rel = "stylesheet";
@@ -67,7 +91,18 @@
 				iconAnchor: [40, 40], // Center the icon
 			})
 
+			// load map
 			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map)
+			let polyline = L.polyline(latlngs, {color: 'red'}).addTo(map)
+				L.polylineDecorator(polyline, {
+					patterns: [
+						{
+							offset: '100%',
+							repeat: 0,
+							symbol: L.Symbol.arrowHead({pixelSize: 20, pathOptions: {color: 'red', fillOpacity: 1}}),
+						},
+					],
+				}).addTo(map)
 
 			map.on("click", (e: any) => {
 			if (placingFire) {
