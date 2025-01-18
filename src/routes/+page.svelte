@@ -2,7 +2,7 @@
 	import Card from "$lib/components/Card.svelte";
 	import { onMount, onDestroy } from "svelte"
 	import { browser } from "$app/environment";
-	import type { LatLngExpression, LatLngBoundsExpression, LatLngTuple } from "leaflet"
+	import type { LatLngExpression, LatLngBoundsExpression } from "leaflet"
 
 	// CLOCK STUFF
 	function formatDate(dateString: string): string {
@@ -25,39 +25,32 @@
 
 	// MAP STUFF
 	let map: any
-	const imageHeight = 549
-	const imageWidth = 763
+	const imageHeight = 400
+	const imageWidth = 600
 	const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
-	// @ts-ignore
-	const center: LatLngExpression = bounds[1].map((x) => x!/2)
-
-	const room2Coordinates: LatLngExpression[] = [
-		[300, 300],
-		[400, 300],
-		[400, 400],
-		[300, 400],
+	const center: LatLngExpression = [
+		imageHeight / 2,
+		imageWidth / 2,
 	]
-
-
 
 	onMount(async () => {
 		if (browser) {
 			const L = await import("leaflet"); // Dynamically import Leaflet
 		
-
+			const link = document.createElement("link");
+			link.rel = "stylesheet";
+			link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+			document.head.appendChild(link);
 			map = L.map("map", {
 				crs: L.CRS.Simple,
 				zoomControl: false,
-				dragging: true
-			}).setView(center, 0);
+				dragging: true,
+			}).setView(center, -1);
 			map.setMaxBounds(bounds)
 			map.options.maxZoom = 2
-			map.options.minZoom = 0
+			map.options.minZoom = -1
 
-			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
-
-			const room2 = L.polygon(room2Coordinates, { color: "green" }).addTo(map)
-    		room2.on("click", () => alert("Room 2 clicked"))
+			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map)
 		}
 
 		// CLOCK
@@ -73,13 +66,13 @@
   </script>
 
 <div class="flex flex-col items-center p-10">
-	<h1 class="text-8xl mb-3"><a href="https://github.com/ViincentLim/path-hero">PATH HERO</a></h1>
+	<h1 class="text-4xl mb-1"><a href="https://github.com/ViincentLim/path-hero">PATH HERO</a></h1>
 	<p class="mb-8">{displayDate}</p>
 	<nav class="underline text-left w-full mb-4">
 		<a href="/add_floorplan">New Floorplan?</a>
 	</nav>
 	<!-- GRAPH AND ANALYSIS -->
-	<div class="flex w-full gap-4 items-start h-[100vh]">
+	<div class="flex w-full gap-4 items-start">
 		<div class="flex flex-col gap-4">
 			<Card
 				{...{
@@ -91,7 +84,7 @@
 			/>
 		</div>
 
-		<div class="w-3/4 border-2 overflow-hidden">
+		<div class="w-3/4 overflow-hidden">
 			<div id="map" class="h-[400px]"></div>
 		</div>
 	</div>
