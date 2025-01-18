@@ -25,11 +25,14 @@
 
 	// MAP STUFF
 	let map: any
-	const imageHeight = 549
-	const imageWidth = 763
+	const imageHeight = 1414
+	const imageWidth = 2000
 	const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
 	// @ts-ignore
-	const center: LatLngExpression = bounds[1].map((x) => x!/2)
+	const center: LatLngExpression = [
+		imageHeight / 2,
+		imageWidth / 2,
+	]
 
 	const room2Coordinates: LatLngExpression[] = [
 		[300, 300],
@@ -49,10 +52,10 @@
 				crs: L.CRS.Simple,
 				zoomControl: false,
 				dragging: true
-			}).setView(center, 0);
+			}).setView(center, -1);
 			map.setMaxBounds(bounds)
 			map.options.maxZoom = 2
-			map.options.minZoom = 0
+			map.options.minZoom = -1
 
 			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
 
@@ -92,7 +95,7 @@
 		</div>
 
 		<div class="w-3/4 border-2 overflow-hidden">
-			<div id="map" class="h-[400px]"></div>
+			<div id="map" class="h-[400px] w-full"></div>
 		</div>
 	</div>
 </div>
