@@ -8,9 +8,10 @@ export const actions = {
    const name = formData.get("name")
    const file = formData.get("file")
    const requestBody = JSON.stringify({
-     file_name: name,
+     description: name,
      image_file: file
    })
+   console.log(requestBody);
 
    // Validate inputs
    if (!name || !file ) {

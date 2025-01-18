@@ -5,6 +5,8 @@ import numpy as np
 from PIL import Image
 import cv2
 import pytesseract
+from pydantic import BaseModel
+
 from .logic.pathfind import get_path, initialize_grid
 import app.globals as globals
 import os
@@ -94,21 +96,35 @@ def calculate_distance(box1, box2):
     x3, y3, x4, y4 = box2
     return max(0, max(x3 - x2, x1 - x4)) + max(0, max(y3 - y2, y1 - y4))
 
+class Props(BaseModel):
+    description: str
+    image_filename: str
+
 @floorplan_router.post("/api/floorplan")
 async def floorplan(
-    file_name: str = Form(...),
-    image_file: UploadFile = Form(...)
+        props: Props,
+    # description: str = Form(...),
+    # image_filename: str = Form(...)
+    # # image_file: UploadFile = Form(...)
 ) -> JSONResponse:
+    description = props.description
+    image_filename = props.image_filename
+    print(description)
+    print(image_filename)
     # Validate the file type
-    if not image_file.filename.endswith(".png"):
+    if not image_filename.endswith(".png"):
         return JSONResponse(
             status_code=400,
             content={"error": "Invalid file type. Only .png files are supported."}
         )
 
     # Read the uploaded file as a numpy array
-    image_array = np.frombuffer(await image_file.read(), np.uint8)
-    image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    image = cv2.imread("static/images/floor/" + image_filename)
+    cv2.imshow("", image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    # image_array = np.frombuffer(await image_file.read(), np.uint8)
+    # image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
 
     if image is None:
         return JSONResponse(
