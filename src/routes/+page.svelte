@@ -3,6 +3,9 @@
 	import { onMount, onDestroy } from "svelte"
 	import { browser } from "$app/environment";
 	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator } from "leaflet"
+	import L from "leaflet"
+  import { enhance } from "$app/forms";
+	import('leaflet-polylinedecorator')
 
 	export let data: {
 	  height: number,
@@ -38,8 +41,6 @@
 
 	// MAP STUFF
 	let map: LeafletMap
-	let L: any
-	let mapInitialized = false
 	
 	const imageHeight = data.height
 	const imageWidth = data.width
@@ -55,9 +56,11 @@
 	let fireXCoords: string = ""
 	let fireYCoords: string = ""
 	let fireDescription: string
+	let fireMarkers: L.Marker[] = []
 	function startFire() {
 		placingFire = true
 	}
+
 
 	// PATH
 	let instructionIndex = 0
@@ -93,10 +96,6 @@
 
 	onMount(async () => {
 		if (browser) {
-			L = await import("leaflet")
-			// @ts-ignore
-			let polylineDecorator = await import('leaflet-polylinedecorator')
-
 			const link = document.createElement("link");
 			link.rel = "stylesheet";
 			link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
@@ -161,15 +160,33 @@
 				const { lat, lng } = e.latlng
 				fireYCoords += (imageHeight - (lat as number)) + ","
 				fireXCoords += lng + ","
-				L.marker([lat, lng], { icon: fireIcon }).addTo(map); // Place marker at clicked location
+				const marker = L.marker([lat, lng], { icon: fireIcon }).addTo(map)
+				fireMarkers.push(marker)
 				}
-			});
+			})
 		}
 
 		// CLOCK
 		updateClock()
-		interval = setInterval(updateClock, 1000)
-	})
+			interval = setInterval(updateClock, 1000)
+		})
+
+		function clearFireMarkers() {
+        for (const marker of fireMarkers) {
+            map.removeLayer(marker); // Remove each marker from the map
+        }
+        fireMarkers = []; // Reset the markers array
+        fireXCoords = ""; // Clear fire coordinates
+        fireYCoords = ""; // Clear fire coordinates
+        fireDescription = ""; // Reset description input
+    }
+
+		function handleSubmit(event: Event) {
+			setTimeout(() => {
+				clearFireMarkers();
+				placingFire = false;
+			}, 100); // Adjust delay as needed
+		}
   </script>
 
 <div class="flex flex-col items-center px-10 py-4">
@@ -197,7 +214,7 @@
 				<button class="button variant-ghost-primary p-3 text-2xl" onclick={startFire}>Place Fires</button>
 				<p class="italic text-gray-400">Click map</p>
 				{:else}
-				<form method="post" class="flex flex-col justify-between items-start w-32">
+				<form method="post" class="flex flex-col justify-between items-start w-32" use:enhance onsubmit={handleSubmit}>
 					<input type="hidden" name="x" bind:value={fireXCoords}>
 					<input type="hidden" name="y" bind:value={fireYCoords}>
 					<input type="text" class="input text-2xl" name="description" bind:value={fireDescription} placeholder="Describe">

@@ -53,9 +53,9 @@ export const actions = {
    const description = formData.get("description")
    const xArr = (x! as string).split(",")
    const yArr = (y! as string).split(",")
-   const coords = []
+   const coordinates = []
    for (let i = 0; i < xArr.length-1; i++) {
-    coords.push([xArr[i], yArr[i]])
+    coordinates.push([(xArr[i] as unknown as number), (yArr[i] as unknown as number)])
    }
 
    // Validate inputs
@@ -65,7 +65,7 @@ export const actions = {
 
 
    const requestBody = JSON.stringify({
-     coords: coords,
+     coordinates: coordinates,
      description: description,
    })
    console.log(requestBody)
