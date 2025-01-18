@@ -26,16 +26,10 @@
 	// MAP STUFF
 	let map: any
 	const imageHeight = 549
-	const imageWidth = 1063
+	const imageWidth = 763
 	const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
 	// @ts-ignore
 	const center: LatLngExpression = bounds[1].map((x) => x!/2)
-	const room1Coordinates: LatLngExpression[] = [
-		[100, 100],
-		[200, 100],
-		[200, 200],
-		[100, 200],
-	]
 
 	const room2Coordinates: LatLngExpression[] = [
 		[300, 300],
@@ -53,15 +47,16 @@
 
 			map = L.map("map", {
 				crs: L.CRS.Simple,
-			}).setView(center, -1);
+				zoomControl: false,
+				dragging: true
+			}).setView(center, 0);
 			map.setMaxBounds(bounds)
+			map.options.maxZoom = 2
+			map.options.minZoom = 0
+
 			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
-			map.fitBounds(bounds)
 
-			const room1 = L.polygon(room1Coordinates, { color: "blue" }).addTo(map)
 			const room2 = L.polygon(room2Coordinates, { color: "green" }).addTo(map)
-
-			room1.on("click", () => alert("Room 1 clicked"))
     		room2.on("click", () => alert("Room 2 clicked"))
 		}
 
@@ -78,7 +73,7 @@
   </script>
 
 <div class="flex flex-col items-center p-10">
-	<h1 class="text-8xl mb-3"><a href="https://github.com/bedminer1/LIQUIDITY_TRACKER/">STABLETIDE</a></h1>
+	<h1 class="text-8xl mb-3"><a href="https://github.com/ViincentLim/path-hero">PATH HERO</a></h1>
 	<p class="mb-8">{displayDate}</p>
 	<nav class="underline text-left w-full mb-4">
 		<a href="/add_floorplan">New Floorplan?</a>
@@ -90,14 +85,14 @@
 				{...{
 					title: "Floor Info",
 					body: "Block A, Level 5",
-					subtitle: "Represents 1/10 of the ETF by JP Morgan",
+					subtitle: "Hospital Ward",
 					icon: "&#9814;"
 				}}
 			/>
 		</div>
 
-		<div class="w-full border-2">
-			<div id="map" class="w-full h-screen"></div>
+		<div class="w-3/4 border-2 overflow-hidden">
+			<div id="map" class="h-[400px]"></div>
 		</div>
 	</div>
 </div>
