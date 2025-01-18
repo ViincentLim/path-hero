@@ -23,14 +23,17 @@
 	$: displayDate = time + " | " + formatDate("2025-01-18")
 	let interval: ReturnType<typeof setInterval>
 
+	// Height of map in px
+	const displayHeight = 700;
+
 	// MAP STUFF
 	let map: LeafletMap
 	let L: any
 	let placingFire = false
 	let fireIcon: any; // Custom fire icon
 
-	const imageHeight = 1414/2
-	const imageWidth = 2000/2
+	const imageHeight = 1414
+	const imageWidth = 2000
 	const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
 	const center: LatLngExpression = [
 		imageHeight / 2,
@@ -43,19 +46,21 @@
 	onMount(async () => {
 		if (browser) {
 			L = await import("leaflet"); // Dynamically import Leaflet
-		
+
 			const link = document.createElement("link");
 			link.rel = "stylesheet";
 			link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
 			document.head.appendChild(link);
+			const minZoom = Math.log2(displayHeight/imageHeight);
 			map = L.map("map", {
 				crs: L.CRS.Simple,
 				zoomControl: true,
 				dragging: true,
-			}).setView(center, 0);
-			map.setMaxBounds(bounds)
+			}).setView(center, minZoom);
+			map.setMaxBounds(bounds);
 			map.options.maxZoom = 2
-			map.options.minZoom = 0
+			map.options.minZoom = minZoom
+			map.fitBounds(bounds);
 			fireIcon = L.divIcon({
 				html: '<div class="text-red-500 text-6xl">🔥</div>',
 				iconSize: [0, 0], // Adjust size if necessary
@@ -120,7 +125,7 @@
 		</div>
 
 		<div class="w-3/4 overflow-hidden">
-			<div id="map" class="h-[600px]"></div>
+			<div id="map" style="height: {displayHeight}px"></div>
 		</div>
 	</div>
 </div>
