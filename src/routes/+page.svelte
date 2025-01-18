@@ -25,6 +25,10 @@
 
 	// MAP STUFF
 	let map: any
+	let L: any
+	let placingFire = false
+	let fireIcon: any; // Custom fire icon
+
 	const imageHeight = 400
 	const imageWidth = 600
 	const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
@@ -35,7 +39,7 @@
 
 	onMount(async () => {
 		if (browser) {
-			const L = await import("leaflet"); // Dynamically import Leaflet
+			L = await import("leaflet"); // Dynamically import Leaflet
 		
 			const link = document.createElement("link");
 			link.rel = "stylesheet";
@@ -45,12 +49,27 @@
 				crs: L.CRS.Simple,
 				zoomControl: false,
 				dragging: true,
-			}).setView(center, -1);
+				zoom: 1,
+			}).setView(center, 0);
 			map.setMaxBounds(bounds)
-			map.options.maxZoom = 2
-			map.options.minZoom = -1
+			map.options.maxZoom = 3
+			map.options.minZoom = 0.4
+			fireIcon = L.divIcon({
+				className: "fire-icon",
+				html: "🔥", // Fire emoji
+				iconSize: [24, 24], // Adjust size if necessary
+				iconAnchor: [12, 12], // Center the icon
+			})
 
 			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map)
+
+			map.on("click", (e: any) => {
+			if (placingFire) {
+				const { lat, lng } = e.latlng;
+				L.marker([lat, lng], { icon: fireIcon }).addTo(map); // Place marker at clicked location
+				placingFire = false; // Exit "fire placing mode"
+				}
+			});
 		}
 
 		// CLOCK
@@ -63,6 +82,11 @@
 
 		if (interval) clearInterval(interval)
 	})
+
+	// FIRE
+	function startFire() {
+		placingFire = true
+	}
   </script>
 
 <div class="flex flex-col items-center p-10">
@@ -70,8 +94,8 @@
 	<p class="mb-8">{displayDate}</p>
 	<nav class="underline text-left w-full mb-4">
 		<a href="/add_floorplan">New Floorplan?</a>
+		<button onclick={startFire}>Start a fire? (demo)</button>
 	</nav>
-	<!-- GRAPH AND ANALYSIS -->
 	<div class="flex w-full gap-4 items-start">
 		<div class="flex flex-col gap-4">
 			<Card
@@ -85,7 +109,7 @@
 		</div>
 
 		<div class="w-3/4 overflow-hidden">
-			<div id="map" class="h-[400px]"></div>
+			<div id="map" class="h-[600px]"></div>
 		</div>
 	</div>
 </div>
