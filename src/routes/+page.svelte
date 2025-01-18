@@ -2,14 +2,16 @@
 	import Card from "$lib/components/Card.svelte";
 	import { onMount, onDestroy } from "svelte"
 	import { browser } from "$app/environment";
-	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap } from "leaflet"
+	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator } from "leaflet"
 
 	export let data: {
 	  height: number,
       width: number,
-      rooms: number[][],
-      extinguishers: number[][],
-      exits: number[][], 
+      rooms: LatLngExpression[],
+      extinguishers: LatLngExpression[],
+      exits: LatLngExpression[], 
+	  instructions: string[],
+	  routes: LatLngExpression[][]
 	}
 
 	// CLOCK STUFF
@@ -37,9 +39,8 @@
 	// MAP STUFF
 	let map: LeafletMap
 	let L: any
-	let placingFire = false
-	let fireIcon: any; // Custom fire icon
-
+	let mapInitialized = false
+	
 	const imageHeight = data.height
 	const imageWidth = data.width
 	const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
@@ -47,14 +48,47 @@
 		imageHeight / 2,
 		imageWidth / 2,
 	]
-
+	
 	//FIRE
+	let placingFire = false
+	let fireIcon: any
 	let fireXCoords: string = ""
 	let fireYCoords: string = ""
 	let fireDescription: string
+	function startFire() {
+		placingFire = true
+	}
 
 	// PATH
-	let latlngs = [[700, 700], [700, 1010], [690, 1510], [680, 1910], [1100, 1010], [360, 310]]
+	let instructionIndex = 0
+	$: latlngs = data.routes[instructionIndex]
+	let polyline: L.Polyline
+	let decorator: PolylineDecorator
+	$: {
+		if (map && polyline && decorator) {
+			// Remove old polyline and decorator
+			map.removeLayer(polyline);
+			map.removeLayer(decorator);
+
+			// Add new polyline with updated latlngs
+			polyline = L.polyline(latlngs, { color: "red" }).addTo(map);
+
+			// Add updated decorator
+			decorator = L.polylineDecorator(polyline, {
+				patterns: [
+					{
+						offset: "100%",
+						repeat: 0,
+						symbol: L.Symbol.arrowHead({
+							pixelSize: 20,
+							pathOptions: { color: "red", fillOpacity: 1 },
+						}),
+					},
+				],
+			}).addTo(map);
+		}
+	}
+
 
 
 	onMount(async () => {
@@ -111,8 +145,8 @@
 
 			// load map
 			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map)
-			let polyline = L.polyline(latlngs, {color: 'red'}).addTo(map)
-				L.polylineDecorator(polyline, {
+			polyline = L.polyline(latlngs, {color: 'red'}).addTo(map)
+			decorator = L.polylineDecorator(polyline, {
 					patterns: [
 						{
 							offset: '100%',
@@ -125,8 +159,7 @@
 			map.on("click", (e: any) => {
 			if (placingFire) {
 				const { lat, lng } = e.latlng
-				console.log(lat, lng)
-				fireYCoords += lat + ","
+				fireYCoords += (imageHeight - (lat as number)) + ","
 				fireXCoords += lng + ","
 				L.marker([lat, lng], { icon: fireIcon }).addTo(map); // Place marker at clicked location
 				}
@@ -137,17 +170,6 @@
 		updateClock()
 		interval = setInterval(updateClock, 1000)
 	})
-
-	onDestroy(() => {
-		if (map) map.remove()
-
-		if (interval) clearInterval(interval)
-	})
-
-	// FIRE
-	function startFire() {
-		placingFire = true
-	}
   </script>
 
 <div class="flex flex-col items-center px-10 py-4">
@@ -183,14 +205,21 @@
 				</form>
 				{/if}
 			</div>
-			<div class="card p-4 h-80 w-full">
-
+			<div class="card p-4 h-80 w-full overflow-auto">
+				<div class="flex justify-between items-start">
+					<h1 class="text-3xl mb-3">Instructions</h1>
+					{#if instructionIndex < data.instructions.length-1}
+					<button class="text-2xl underline" onclick={()=> instructionIndex++}>&#9758;</button>
+					{:else}
+					<button class="text-2xl underline" onclick={()=> instructionIndex--}>&#9756;</button>
+					{/if}
+				</div>
+				<p>{data.instructions[instructionIndex]}</p>
 			</div>
 		</div>
 
-		<div class="w-3/4 overflow-hidden">
+		<div class="w-3/4 overflow-hidden border-2 border-dashed p-1 rounded-md">
 			<div id="map" style="height: {displayHeight}px">
-
 			</div>
 		</div>
 	</div>

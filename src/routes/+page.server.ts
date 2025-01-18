@@ -18,6 +18,11 @@ export async function load() {
     const rooms = floorData.rooms
 
     // FIRE DATA
+    const fireDataFileData = await readFile(fireDataFilePath, 'utf-8')
+    const fireData = JSON.parse(fireDataFileData)
+    const recommendations = fireData.recommendations
+    const instructions = recommendations.instructions
+    const routes = recommendations.routes
 
     return { 
       height,
@@ -25,6 +30,8 @@ export async function load() {
       rooms,
       extinguishers,
       exits, 
+      instructions,
+      routes,
     }
   } catch (error) {
     console.error('Error reading recommendations file:', error);
@@ -48,7 +55,7 @@ export const actions = {
    const yArr = (y! as string).split(",")
    const coords = []
    for (let i = 0; i < xArr.length-1; i++) {
-    coords.push([yArr[i], xArr[i]])
+    coords.push([xArr[i], yArr[i]])
    }
 
    // Validate inputs
@@ -61,7 +68,6 @@ export const actions = {
      coords: coords,
      description: description,
    })
-
    console.log(requestBody)
 
    const apiUrl = `http://localhost:8000/api/fire`
@@ -82,6 +88,6 @@ export const actions = {
 
 
   //  const data = await response.json()
-  //  await saveResponseToFile(data, "floordata.json")
+  //  await saveResponseToFile(data, "firedata.json")
  },
 }
