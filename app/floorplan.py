@@ -214,6 +214,7 @@ async def floorplan(props: Props) -> JSONResponse:
 
     # Pathfinding initialization
     img = globals.numpy_image
+    # Tell Vincent if this changes PLEASE, need change /api/fire
     grid_size = 10
     final = {}
 

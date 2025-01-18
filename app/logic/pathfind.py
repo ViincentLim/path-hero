@@ -6,7 +6,8 @@ import app.globals as globals
 from app.logic.filter_walls import filter_walls_as_image
 
 from PIL import Image
-from typing import Tuple, List, Optional, Dict
+from typing import Tuple, List, Optional, Dict, Any
+
 
 def convert_image_to_grid(
     image: Image.Image,
@@ -86,7 +87,7 @@ def a_star_pathfinding(
     goals: List[Tuple[int, int]],
     heuristic: bool, # true means heuristic_fire, false means heuristic
     fire_coords: Optional[List[Tuple[int, int]]] = None
-) -> List[Tuple[int, int]]:
+) -> tuple[float, list[Any]]:
     """
     A* pathfinding algorithm to find the shortest path from start to the nearest goal.
 
@@ -156,6 +157,7 @@ def initialize_grid(img, grid_size=10):
     image = filter_walls_as_image(img)
     globals.grid = convert_image_to_grid(image, grid_size)
 
+# PLease let Vincent know and update /api/fire when grid_size changes
 def get_path(img, start, goals, grid_size=10, heuristic_func=heuristic_manhattan):
     # Visualize the grid
     # plt.imshow(grid, cmap='gray')
