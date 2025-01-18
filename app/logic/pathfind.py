@@ -1,9 +1,8 @@
 # Path finding logic to be used in both endpoints
-import cv2
 import heapq
 import numpy as np
 
-from filter_walls import filter_walls_as_image
+from app.logic.filter_walls import filter_walls_as_image
 
 from PIL import Image
 from typing import Tuple, List, Optional, Dict
