@@ -6,15 +6,15 @@ export const actions = {
  default: async ({ request }: { request: Request }) => {
    const formData = await request.formData();
    const name = formData.get("name")
-   const file = formData.get("file")
+   const filename = formData.get("file")
    const requestBody = JSON.stringify({
      description: name,
-     image_file: file
+     image_filename: filename
    })
    console.log(requestBody);
 
    // Validate inputs
-   if (!name || !file ) {
+   if (!name || !filename ) {
      return { error: "All fields are required." };
    }
 
@@ -24,7 +24,7 @@ export const actions = {
    const response = await fetch(apiUrl, {
      method: "POST",
      headers: {
-       "Content-Type": "application/json", // Set content type to JSON
+       "Content-Type": "application/json; charset=UTF-8", // Set content type to JSON
      },
      body: requestBody,
    })
