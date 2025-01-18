@@ -90,5 +90,7 @@ Given height = 1414 and width = 2000, the top-left corner of the image is (0, 0)
 def init():
     global numpy_image
     global coordinates
+    global grid
     numpy_image = []
     coordinates = {}
+    grid = None
