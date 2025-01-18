@@ -1,5 +1,41 @@
 import { saveResponseToFile } from '$lib/utils/saveResponse'
-import { redirect } from '@sveltejs/kit';
+import { readFile } from 'fs/promises'
+// @ts-ignore
+import path from 'path'
+
+export async function load() {
+  const floorDataFilePath = path.resolve('./src/lib/floordata.json')
+  const fireDataFilePath = path.resolve('./src/lib/firedata.json')
+
+  try {
+    // FLOOR DATA
+    const floorDataFileData = await readFile(floorDataFilePath, 'utf-8');
+    const floorData = JSON.parse(floorDataFileData)
+    const extinguishers = floorData.fire_extinguishers
+    const exits = floorData.exits
+    const height = floorData.height
+    const width = floorData.width
+    const rooms = floorData.rooms
+
+    // FIRE DATA
+
+    return { 
+      height,
+      width,
+      rooms,
+      extinguishers,
+      exits, 
+    }
+  } catch (error) {
+    console.error('Error reading recommendations file:', error);
+    return { 
+        analysis: null,
+        spreadData: null,
+        volumeData: null,
+        xAxis: null,
+    }
+  }
+}
 
 
 export const actions = {

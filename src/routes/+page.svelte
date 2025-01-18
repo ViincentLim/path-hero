@@ -4,6 +4,14 @@
 	import { browser } from "$app/environment";
 	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap } from "leaflet"
 
+	export let data: {
+	  height: number,
+      width: number,
+      rooms: number[][],
+      extinguishers: number[][],
+      exits: number[][], 
+	}
+
 	// CLOCK STUFF
 	function formatDate(dateString: string): string {
 		const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
@@ -20,7 +28,7 @@
 		const seconds = now.getSeconds().toString().padStart(2, "0")
 		time = `${hours}:${minutes}:${seconds}`
 	}
-	$: displayDate = time + " | " + formatDate("2025-01-18")
+	$: displayDate = time + " | " + formatDate("2025-01-19")
 	let interval: ReturnType<typeof setInterval>
 
 	// Height of map in px
@@ -32,8 +40,8 @@
 	let placingFire = false
 	let fireIcon: any; // Custom fire icon
 
-	const imageHeight = 1414
-	const imageWidth = 2000
+	const imageHeight = data.height
+	const imageWidth = data.width
 	const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
 	const center: LatLngExpression = [
 		imageHeight / 2,
@@ -46,30 +54,14 @@
 	let fireDescription: string
 
 	// PATH
-	let latlngs = [[700, 700], [700, 710], [690, 710], [680, 710], [670, 710], [660, 710],
-[650, 710], [650, 720], [640, 720], [640, 730], [640, 740], [640, 750],
-[640, 760], [630, 760], [630, 770], [620, 770], [620, 760], [620, 750],
-[610, 750], [600, 750], [600, 760], [600, 770], [600, 780], [590, 780],
-[590, 770], [580, 770], [580, 760], [590, 760], [590, 750], [580, 750],
-[580, 740], [570, 740], [570, 750], [560, 750], [560, 760], [570, 760],
-[570, 770], [560, 770], [560, 780], [560, 790], [570, 790], [570, 780],
-[580, 780], [580, 790], [580, 800], [590, 800], [600, 800], [600, 810],
-[600, 820], [600, 830], [610, 830], [620, 830], [620, 840], [630, 840],
-[640, 840], [650, 840], [650, 830], [660, 830], [670, 830], [680, 830],
-[690, 830], [690, 820], [700, 820], [710, 820], [710, 830], [710, 840],
-[720, 840], [730, 840], [730, 830], [720, 830], [720, 820], [720, 810],
-[720, 800], [710, 800], [710, 790], [720, 790], [730, 790], [730, 780],
-[720, 780], [720, 770], [710, 770], [710, 760], [720, 760], [730, 760],
-[740, 760], [740, 750], [750, 750], [750, 760], [760, 760], [760, 750],
-[760, 740], [750, 740], [740, 740], [740, 730], [750, 730], [750, 720],
-[760, 720], [760, 710], [760, 700], [760, 690]]
+	let latlngs = [[700, 700], [700, 1010], [690, 1510], [680, 1910], [1100, 1010], [360, 310]]
 
 
 	onMount(async () => {
 		if (browser) {
 			L = await import("leaflet")
 			// @ts-ignore
-			let polylineDecorator = import('leaflet-polylinedecorator')
+			let polylineDecorator = await import('leaflet-polylinedecorator')
 
 			const link = document.createElement("link");
 			link.rel = "stylesheet";
@@ -91,6 +83,32 @@
 				iconAnchor: [40, 40], // Center the icon
 			})
 
+			for (let exit of data.exits) {
+				const marker = L.circleMarker(exit, {
+					radius: 40,
+					color: "transparent", // Makes the border invisible
+					fillColor: "transparent", // Makes the fill invisible
+					fillOpacity: 0, // Ensures no visible fill
+				}).addTo(map)
+				marker.bindTooltip("This is an exit", {
+					permanent: false, // Tooltip shows only on hover
+					direction: "top", // Position of the tooltip
+				})
+			}
+
+			for (let extinguishers of data.extinguishers) {
+				const marker = L.circleMarker(extinguishers, {
+					radius: 40,
+					color: "transparent", // Makes the border invisible
+					fillColor: "transparent", // Makes the fill invisible
+					fillOpacity: 0, // Ensures no visible fill
+				}).addTo(map)
+				marker.bindTooltip("This is an extinguisher", {
+					permanent: false, // Tooltip shows only on hover
+					direction: "top", // Position of the tooltip
+				})
+			}
+
 			// load map
 			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map)
 			let polyline = L.polyline(latlngs, {color: 'red'}).addTo(map)
@@ -106,7 +124,8 @@
 
 			map.on("click", (e: any) => {
 			if (placingFire) {
-				const { lat, lng } = e.latlng;
+				const { lat, lng } = e.latlng
+				console.log(lat, lng)
 				fireYCoords += lat + ","
 				fireXCoords += lng + ","
 				L.marker([lat, lng], { icon: fireIcon }).addTo(map); // Place marker at clicked location
@@ -131,7 +150,7 @@
 	}
   </script>
 
-<div class="flex flex-col items-center p-10">
+<div class="flex flex-col items-center px-10 py-4">
 	<!-- <h1 class="text-4xl mb-1"><a href="https://github.com/ViincentLim/path-hero">PATH HERO</a></h1>
 	<p class="mb-8">{displayDate}</p> -->
 	<nav class="underline text-left w-full mb-4 pl-20">
@@ -170,7 +189,9 @@
 		</div>
 
 		<div class="w-3/4 overflow-hidden">
-			<div id="map" style="height: {displayHeight}px"></div>
+			<div id="map" style="height: {displayHeight}px">
+
+			</div>
 		</div>
 	</div>
 </div>

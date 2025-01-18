@@ -11,3 +11,7 @@ declare global {
 }
 
 export {};
+
+interface Room {
+	
+}
