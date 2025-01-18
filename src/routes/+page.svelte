@@ -165,23 +165,19 @@
 				}
 			})
 		}
-
-		// CLOCK
-		updateClock()
-			interval = setInterval(updateClock, 1000)
 		})
 
 		function clearFireMarkers() {
-        for (const marker of fireMarkers) {
-            map.removeLayer(marker); // Remove each marker from the map
-        }
-        fireMarkers = []; // Reset the markers array
-        fireXCoords = ""; // Clear fire coordinates
-        fireYCoords = ""; // Clear fire coordinates
-        fireDescription = ""; // Reset description input
-    }
+			for (const marker of fireMarkers) {
+				map.removeLayer(marker); // Remove each marker from the map
+			}
+			fireMarkers = []; // Reset the markers array
+			fireXCoords = ""; // Clear fire coordinates
+			fireYCoords = ""; // Clear fire coordinates
+			fireDescription = ""; // Reset description input
+		}
 
-		function handleSubmit(event: Event) {
+		function handleSubmit() {
 			setTimeout(() => {
 				clearFireMarkers();
 				placingFire = false;
