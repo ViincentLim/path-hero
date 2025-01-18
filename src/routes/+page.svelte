@@ -3,6 +3,7 @@
 	import { onMount } from "svelte"
 	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator } from "leaflet"
 	import L from "leaflet"
+	import "leaflet/dist/leaflet.css"
   	import { enhance } from "$app/forms";
 	import('leaflet-polylinedecorator')
 
@@ -67,31 +68,32 @@
 
 		L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
 
-		setupPolylineAndDecorator();
 		setupMapClickHandler();
 	}
 
-	function setupPolylineAndDecorator() {
-		if (polyline && decorator) {
-		map.removeLayer(polyline);
-		map.removeLayer(decorator);
-		}
+	$: {
+    if (map) {
+      // Remove old polyline and decorator if they exist
+      if (polyline) map.removeLayer(polyline);
+      if (decorator) map.removeLayer(decorator);
 
-		polyline = L.polyline(latlngs, { color: "red" }).addTo(map);
+      // Create new polyline and decorator with updated latlngs
+      polyline = L.polyline(latlngs, { color: "red" }).addTo(map);
+      decorator = L.polylineDecorator(polyline, {
+        patterns: [
+          {
+            offset: "100%",
+            repeat: 0,
+            symbol: L.Symbol.arrowHead({
+              pixelSize: 20,
+              pathOptions: { color: "red", fillOpacity: 1 },
+            }),
+          },
+        ],
+      }).addTo(map);
+    }
+  }
 
-		decorator = L.polylineDecorator(polyline, {
-		patterns: [
-			{
-			offset: "100%",
-			repeat: 0,
-			symbol: L.Symbol.arrowHead({
-				pixelSize: 20,
-				pathOptions: { color: "red", fillOpacity: 1 },
-			}),
-			},
-		],
-		}).addTo(map);
-	}
 
 	function setupMapClickHandler() {
 		map.on("click", (e) => {
@@ -143,7 +145,7 @@
 			// 	})
 			// }
 
-		function handleSubmit() {
+	function handleSubmit() {
 		setTimeout(() => {
 			clearFireMarkers();
 			placingFire = false;
