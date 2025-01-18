@@ -29,13 +29,16 @@
 	let placingFire = false
 	let fireIcon: any; // Custom fire icon
 
-	const imageHeight = 400
-	const imageWidth = 600
+	const imageHeight = 1414/2
+	const imageWidth = 2000/2
 	const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
 	const center: LatLngExpression = [
 		imageHeight / 2,
 		imageWidth / 2,
 	]
+	let fireXCoords: number
+	let fireYCoords: number
+	let fireDescription: string
 
 	onMount(async () => {
 		if (browser) {
@@ -47,16 +50,16 @@
 			document.head.appendChild(link);
 			map = L.map("map", {
 				crs: L.CRS.Simple,
-				zoomControl: false,
+				zoomControl: true,
 				dragging: true,
 			}).setView(center, 0);
 			map.setMaxBounds(bounds)
-			map.options.maxZoom = 3
+			map.options.maxZoom = 2
 			map.options.minZoom = 0
 			fireIcon = L.divIcon({
 				html: '<div class="text-red-500 text-6xl">🔥</div>', 
-				iconSize: [1, 1], // Adjust size if necessary
-				iconAnchor: [0, 0], // Center the icon
+				iconSize: [0, 0], // Adjust size if necessary
+				iconAnchor: [40, 40], // Center the icon
 			})
 
 			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map)
@@ -64,6 +67,8 @@
 			map.on("click", (e: any) => {
 			if (placingFire) {
 				const { lat, lng } = e.latlng;
+				fireXCoords = lat
+				fireYCoords = lng
 				L.marker([lat, lng], { icon: fireIcon }).addTo(map); // Place marker at clicked location
 				placingFire = false; // Exit "fire placing mode"
 				}
@@ -92,7 +97,16 @@
 	<p class="mb-8">{displayDate}</p>
 	<nav class="underline text-left w-full mb-4">
 		<a href="/add_floorplan">New Floorplan?</a>
+		{#if !placingFire}
 		<button onclick={startFire}>Start a fire? (demo)</button>
+		{:else}
+		<form action="" method="POST">
+			<input type="hidden" name="x" bind:value={fireXCoords}>
+			<input type="hidden" name="y" bind:value={fireYCoords}>
+			<input type="text" class="input" name="description" bind:value={fireDescription}>
+			<button>Start Burning</button>
+		</form>
+		{/if}
 	</nav>
 	<div class="flex w-full gap-4 items-start">
 		<div class="flex flex-col gap-4">
