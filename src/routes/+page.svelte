@@ -132,31 +132,41 @@
   </script>
 
 <div class="flex flex-col items-center p-10">
-	<h1 class="text-4xl mb-1"><a href="https://github.com/ViincentLim/path-hero">PATH HERO</a></h1>
-	<p class="mb-8">{displayDate}</p>
-	<nav class="underline text-left w-full mb-4">
+	<!-- <h1 class="text-4xl mb-1"><a href="https://github.com/ViincentLim/path-hero">PATH HERO</a></h1>
+	<p class="mb-8">{displayDate}</p> -->
+	<nav class="underline text-left w-full mb-4 pl-20">
 		<a href="/add_floorplan">New Floorplan?</a>
-		{#if !placingFire}
-		<button onclick={startFire}>Start a fire? (demo)</button>
-		{:else}
-		<form method="post">
-			<input type="hidden" name="x" bind:value={fireXCoords}>
-			<input type="hidden" name="y" bind:value={fireYCoords}>
-			<input type="text" class="input" name="description" bind:value={fireDescription}>
-			<button>Start Burning</button>
-		</form>
-		{/if}
 	</nav>
-	<div class="flex w-full gap-4 items-start">
-		<div class="flex flex-col gap-4">
+	<div class="flex w-full gap-8 items-start justify-center">
+		<div class="flex flex-col gap-4 w-1/6">
 			<Card
 				{...{
 					title: "Floor Info",
-					body: "Block A, Level 5",
-					subtitle: "Hospital Ward",
-					icon: "&#9814;"
+					body: "Hospital Ward",
+					subtitle: "Block A, Level 5",
+					icon: "🗺️"
 				}}
 			/>
+			<div class="card p-4 h-44 w-full">
+				<div class="flex w-full justify-between mb-5">
+					<p>Start a fire?</p> 
+					<p class="text-3xl">🔥</p>
+				</div>
+				{#if !placingFire}
+				<button class="button variant-ghost-primary p-3 text-2xl" onclick={startFire}>Place Fires</button>
+				<p class="italic text-gray-400">Click map</p>
+				{:else}
+				<form method="post" class="flex flex-col justify-between items-start w-32">
+					<input type="hidden" name="x" bind:value={fireXCoords}>
+					<input type="hidden" name="y" bind:value={fireYCoords}>
+					<input type="text" class="input text-2xl" name="description" bind:value={fireDescription} placeholder="Describe">
+					<button class="italic text-gray-400">Continue</button>
+				</form>
+				{/if}
+			</div>
+			<div class="card p-4 h-80 w-full">
+
+			</div>
 		</div>
 
 		<div class="w-3/4 overflow-hidden">
