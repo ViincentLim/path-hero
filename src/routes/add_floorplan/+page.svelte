@@ -13,14 +13,14 @@
           <p class="flex items-center text-xl">
             Floor Name
           </p>
-          <input type="text" class="input w-2/3" name="asset" bind:value={name} placeholder="e.g. Block B, Level 5" required />
+          <input type="text" class="input w-2/3" name="name" bind:value={name} placeholder="e.g. Block B, Level 5" required />
         </label> 
         
         <label class="w-full flex justify-between mb-4">
         <p class="flex items-center text-xl">
             Image File
         </p>
-        <input type="file" class="input w-2/3 text-sm text-gray-400" bind:value={file}>
+        <input type="file" class="input w-2/3 text-sm text-gray-400" name="file" bind:value={file}>
         </label>
         
           <button class="btn  text-lg variant-ghost-primary" type="submit">Submit</button>
