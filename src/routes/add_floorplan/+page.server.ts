@@ -6,15 +6,16 @@ export const actions = {
  default: async ({ request }: { request: Request }) => {
    const formData = await request.formData();
    const name = formData.get("name")
-   const file = formData.get("file")
+   const filename = formData.get("file")
    const requestBody = JSON.stringify({
      description: name,
+     image_filename: filename
      image_filename: file
    })
    console.log(requestBody);
 
    // Validate inputs
-   if (!name || !file ) {
+   if (!name || !filename ) {
      return { error: "All fields are required." };
    }
 

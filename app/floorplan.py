@@ -120,9 +120,9 @@ async def floorplan(
 
     # Read the uploaded file as a numpy array
     image = cv2.imread("static/images/floor/" + image_filename)
-    cv2.imshow("", image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow("", image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     # image_array = np.frombuffer(await image_file.read(), np.uint8)
     # image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
 
@@ -138,6 +138,7 @@ async def floorplan(
 
     # Extract dimensions (height and width)
     height, width = image.shape[:2]
+    print(height, width)
 
     # Convert to grayscale for icon detection
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
