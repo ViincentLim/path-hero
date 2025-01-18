@@ -204,8 +204,8 @@ async def floorplan(props: Props) -> JSONResponse:
 
     # Store in globals (all native types)
     response = {
-        "icons": icons_dict,  # Already flipped to (y1, x1, y2, x2)
-        "rooms": rooms_dict,  # Already flipped to (y1, x1, y2, x2)
+        "icons": icons_dict,  # Bounding boxes in (y1, x1, y2, x2)
+        "rooms": rooms_dict,  # Bounding boxes in (y1, x1, y2, x2)
         "grid_size": 10,
         "height": height,
         "width": width
@@ -217,31 +217,57 @@ async def floorplan(props: Props) -> JSONResponse:
     grid_size = 10
     final = {}
 
-    # final['icons'] is already in (y1, x1, y2, x2) format (all ints)
+    # Include the icons bounding boxes as is
     final['icons'] = globals.coordinates["icons"]
     final['height'] = globals.coordinates["height"]
     final['width'] = globals.coordinates["width"]
-    final['rooms'] = []
 
-    # For the exit icons, compute midpoints in (row, col) = (y, x)
-    if "exit" in final['icons']:
+    # Compute midpoints for icons and rooms
+    # For icons, compute midpoints for each icon box
+    icons_midpoints = {}
+    for icon_name, boxes in globals.coordinates["icons"].items():
+        midpoints = []
+        for bbox in boxes:
+            # bbox is in (y1, x1, y2, x2)
+            y_mid = int((bbox[0] + bbox[2]) // 2)
+            x_mid = int((bbox[1] + bbox[3]) // 2)
+            midpoints.append([y_mid, x_mid])
+        icons_midpoints[icon_name] = midpoints
+
+    # For rooms, compute midpoints for each room box
+    rooms_midpoints = {}
+    for room_name, boxes in globals.coordinates["rooms"].items():
+        midpoints = []
+        for bbox in boxes:
+            y_mid = int((bbox[0] + bbox[2]) // 2)
+            x_mid = int((bbox[1] + bbox[3]) // 2)
+            midpoints.append([y_mid, x_mid])
+        rooms_midpoints[room_name] = midpoints
+
+    # Include these new attributes in the final response
+    final['icons_midpoints'] = icons_midpoints
+    final['rooms_midpoints'] = rooms_midpoints
+
+    # Build rooms pathfinding results (using computed midpoints)
+    final['rooms'] = []
+    # For the exit icons, compute a combined list of midpoints to serve as destinations.
+    if "exit" in icons_dict:
         exit_midpoints = [
             [
                 int((bbox[0] + bbox[2]) // 2),  # y midpoint
                 int((bbox[1] + bbox[3]) // 2)   # x midpoint
             ]
-            for bbox in final['icons']['exit']
+            for bbox in icons_dict['exit']
         ]
     else:
         exit_midpoints = []
 
-    # Compute midpoints for each room bounding box and run pathfinding
     for room_name, boxes in globals.coordinates["rooms"].items():
         for bbox in boxes:
             # bbox is in (y1, x1, y2, x2)
             y_mid = int((bbox[0] + bbox[2]) // 2)
             x_mid = int((bbox[1] + bbox[3]) // 2)
-            # Call get_path with (y, x) for both start and exit midpoints.
+            # Call get_path with (y, x)
             cost, route = get_path(img, (y_mid, x_mid), exit_midpoints, grid_size, False)
             # Convert route coordinates into native ints
             route_converted = [[int(point[0]), int(point[1])] for point in route]
@@ -253,26 +279,39 @@ async def floorplan(props: Props) -> JSONResponse:
 
     return JSONResponse(content=final)
 
-
 '''
 final = {
     "icons": {
-        # Same structure as globals.coordinates["icons"]
-        # For example:
-        "exit": List[List[int]],              # List of exit icon boxes in [y1, x1, y2, x2] format
-        "exit_lift": List[List[int]],         # etc.
+        # Same structure as globals.coordinates["icons"], 
+        # keys are icon names and values are lists of bounding boxes.
+        # Each bounding box is a list [y1, x1, y2, x2]
+        "exit": List[List[int]],
+        "exit_lift": List[List[int]],
         "extinguisher_powder": List[List[int]],
+        # ... additional icons ...
+    },
+    "icons_midpoints": {
+        # Keys are the same icon names and values are lists of midpoints.
+        # Each midpoint is a list [y, x].
+        "exit": List[List[int]],
+        "exit_lift": List[List[int]],
         # ... additional icons ...
     },
     "height": int,       # Height of the floor image (in pixels)
     "width": int,        # Width of the floor image (in pixels)
     "rooms": [
         {
-            "name": str,                             # The room name (e.g., "Hospital Level 5")
-            "text_bounding_box_coords": List[int],   # The room bounding box as [y1, x1, y2, x2]
-            "route": List[List[int]]                   # The computed route. Each point in the route is a list [y, x]
+            "name": str,                            # The room name (e.g., "Hospital Level 5")
+            "text_bounding_box_coords": List[int],    # The bounding box as [y1, x1, y2, x2]
+            "route": List[List[int]]                  # The computed path route. Each route point is [y, x]
         },
-        # ... one dictionary for each room bounding box processed ...
-    ]
+        # ... one dictionary per room bounding box ...
+    ],
+    "rooms_midpoints": {
+        # Keys are room names and values are lists of midpoints for each room's bounding box.
+        "Hospital Level 5": List[List[int]],
+        "Bed Lift": List[List[int]],
+        # ... additional rooms ...
+    }
 }
 '''
