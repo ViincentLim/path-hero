@@ -49,16 +49,14 @@
 				crs: L.CRS.Simple,
 				zoomControl: false,
 				dragging: true,
-				zoom: 1,
 			}).setView(center, 0);
 			map.setMaxBounds(bounds)
 			map.options.maxZoom = 3
-			map.options.minZoom = 0.4
+			map.options.minZoom = 0
 			fireIcon = L.divIcon({
-				className: "fire-icon",
 				html: "🔥", // Fire emoji
-				iconSize: [24, 24], // Adjust size if necessary
-				iconAnchor: [12, 12], // Center the icon
+				iconSize: [1004, 104], // Adjust size if necessary
+				iconAnchor: [0, 0], // Center the icon
 			})
 
 			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map)

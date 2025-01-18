@@ -12,7 +12,7 @@ export const actions = {
       return { error: "All fields are required." };
     }
 
-    const apiUrl = `http://localhost:4000/recommendations?name=${name}&file=${file}`
+    const apiUrl = `http://localhost:8000/api/floorplan?name=${name}&file=${file}`
 
     // Fetch data from the backend
     const response = await fetch(apiUrl);
