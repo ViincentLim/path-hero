@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 import cv2
 import pytesseract
-from .logic.pathfind import get_path
+from .logic.pathfind import get_path, initialize_grid
 import app.globals as globals
 import os
 
@@ -116,8 +116,9 @@ async def floorplan(
             content={"error": "Failed to process the image. Please try again."}
         )
 
-    # Save the numpy array to globals
+    # Save the numpy array and grid to globals
     globals.numpy_image = image
+    initialize_grid(image)
 
     # Extract dimensions (height and width)
     height, width = image.shape[:2]
@@ -197,10 +198,11 @@ async def floorplan(
     for start_room_names, values in globals.coordinates["rooms"].items():
         for value in values:
             midpoint = ((value[0] + value[2]) // 2, (value[1] + value[3]) // 2)
+            _, route = get_path(img, midpoint, goals, grid_size, False) # false for manhattan distance heuristic
             final['rooms'].append({
                 "name" : start_room_names,
                 "text_bounding_box_coords": value, #guarnteed to be unique
-                "route":  get_path(img, midpoint, goals, grid_size)
+                "route": route
                 })
 
     return JSONResponse(content=final)
