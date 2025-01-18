@@ -15,6 +15,7 @@
       extinguisherCo2: LatLngExpression[],
       extinguisherFoam: LatLngExpression[],
       exits: LatLngExpression[], 
+      hoseReel: LatLngExpression[], 
 	  instructions: string[],
 	  routes: LatLngExpression[][]
 	}
@@ -68,7 +69,29 @@
 
 		L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
 
-		setupMapClickHandler();
+		setupMapClickHandler()
+
+		for (let exit of data.exits) {
+			createMarkerWithTooltip(exit, "This is an exit");
+		}
+		for (let extinguisher of data.extinguisherFoam) {
+			createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
+		}
+		for (let extinguisher of data.extinguisherFoam) {
+			createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
+		}
+
+		for (let extinguisher of data.extinguisherCo2) {
+			createMarkerWithTooltip(extinguisher, "This is a CO2 extinguisher");
+		}
+
+		for (let extinguisher of data.extinguisherPowder) {
+			createMarkerWithTooltip(extinguisher, "This is a powder extinguisher");
+		}
+
+		for (let hose of data.hoseReel) {
+			createMarkerWithTooltip(hose, "This is a hose reel");
+		}
 	}
 
 	$: {
@@ -116,34 +139,24 @@
 
 	// Initialize map on mount
 	onMount(() => {
-		initializeMap();
+		initializeMap()
 	});
 
-			// for (let exit of data.exits) {
-			// 	const marker = L.circleMarker(exit, {
-			// 		radius: 40,
-			// 		color: "transparent", // Makes the border invisible
-			// 		fillColor: "transparent", // Makes the fill invisible
-			// 		fillOpacity: 0, // Ensures no visible fill
-			// 	}).addTo(map)
-			// 	marker.bindTooltip("This is an exit", {
-			// 		permanent: false, // Tooltip shows only on hover
-			// 		direction: "top", // Position of the tooltip
-			// 	})
-			// }
+	function createMarkerWithTooltip(location: LatLngExpression, tooltipText: string) {
+		const marker = L.circleMarker(location, {
+			radius: 40,
+			color: "transparent", 
+			fillColor: "transparent", 
+			fillOpacity: 0, // Ensures no visible fill
+		}).addTo(map);
 
-			// for (let extinguishers of data.extinguisherFoam) {
-			// 	const marker = L.circleMarker(extinguishers, {
-			// 		radius: 40,
-			// 		color: "transparent", // Makes the border invisible
-			// 		fillColor: "transparent", // Makes the fill invisible
-			// 		fillOpacity: 0, // Ensures no visible fill
-			// 	}).addTo(map)
-			// 	marker.bindTooltip("This is a foam extinguisher", {
-			// 		permanent: false, // Tooltip shows only on hover
-			// 		direction: "top", // Position of the tooltip
-			// 	})
-			// }
+		console.log(location)
+
+		marker.bindTooltip(tooltipText, {
+			permanent: false, // Tooltip shows only on hover
+			direction: "top", // Position of the tooltip
+		});
+	}
 
 	function handleSubmit() {
 		setTimeout(() => {
@@ -153,13 +166,11 @@
 	}
 </script>
 
-<div class="flex flex-col items-center px-10 py-4">
-	<!-- <h1 class="text-4xl mb-1"><a href="https://github.com/ViincentLim/path-hero">PATH HERO</a></h1>
-	<p class="mb-8">{displayDate}</p> -->
-	<nav class="underline text-left w-full mb-4 pl-20">
-		<a href="/add_floorplan">New Floorplan?</a>
-	</nav>
+<div class="flex flex-col items-center pr-10 pt-4 pb-0 h-[93vh]">
 	<div class="flex w-full gap-8 items-start justify-center">
+		<div class="h-screen">
+			<a href="/add_floorplan">&#10094;</a>
+		</div>
 		<div class="flex flex-col gap-4 w-1/6">
 			<Card
 				{...{
@@ -170,23 +181,8 @@
 				}}
 			/>
 			<div class="card p-4 h-44 w-full">
-				<div class="flex w-full justify-between mb-5">
-					<p>Start a fire?</p> 
-					<p class="text-3xl">🔥</p>
-				</div>
-				{#if !placingFire}
-				<button class="button variant-ghost-primary p-3 text-2xl" onclick={startFire}>Place Fires</button>
-				<p class="italic text-gray-400">Click map</p>
-				{:else}
-				<form method="post" class="flex flex-col justify-between items-start w-32" use:enhance onsubmit={handleSubmit}>
-					<input type="hidden" name="x" bind:value={fireXCoords}>
-					<input type="hidden" name="y" bind:value={fireYCoords}>
-					<input type="text" class="input text-2xl" name="description" bind:value={fireDescription} placeholder="Describe">
-					<button class="italic text-gray-400">Continue</button>
-				</form>
-				{/if}
 			</div>
-			<div class="card p-4 h-80 w-full overflow-auto">
+			<div class="card p-4 mb-0 h-80 w-full overflow-auto">
 				<div class="flex justify-between items-start">
 					<h1 class="text-3xl mb-3">Instructions</h1>
 					{#if instructionIndex < data.instructions.length-1}
@@ -199,9 +195,25 @@
 			</div>
 		</div>
 
-		<div class="w-3/4 overflow-hidden border-2 border-dashed p-1 rounded-md">
+		<div class="w-3/4 overflow-hidden">
 			<div id="map" style="height: {displayHeight}px">
 			</div>
 		</div>
 	</div>
 </div>
+<div class="w-full h-10 mr-10   flex justify-center ">
+	<div class="w-3/4 text-center flex justify-end">
+		<form method="post" class="flex justify-between items-start w-3/4 mr-4 gap-6" use:enhance onsubmit={handleSubmit}>
+			<input type="hidden" name="x" bind:value={fireXCoords}>
+			<input type="hidden" name="y" bind:value={fireYCoords}>
+			<input type="text" class="input text-lg w-full text-center" name="description" bind:value={fireDescription} placeholder="Eg. It is an electrical fire with casualties including one burned and inhaling smoke.">
+		</form>
+	</div>
+	<button class="text-5xl text-align-top  h-10" onclick={startFire}>🔥</button>
+</div>
+
+<style>
+	#map {
+		background-color: white;
+	}
+</style>

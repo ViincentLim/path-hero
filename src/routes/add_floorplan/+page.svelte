@@ -3,8 +3,8 @@
     let file: string
   </script>
   
-  <nav class="flex p-4 gap-4 underline">
-    <a href="/" class="text-3xl">&#9756;</a>
+  <nav class="flex p-2 gap-4">
+    <a href="/" class="pl-4 pt-2">&#10094;</a>
   </nav>
   <div class="flex flex-col items-center p-10">
       <h2 class="text-4xl mb-10">ADD FLOORPLAN</h2>
