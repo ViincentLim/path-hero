@@ -56,8 +56,13 @@ def extract_text_with_boxes(image_array: np.ndarray):
         try:
             conf = float(data['conf'][i])
             if text.strip() and conf > 50:  # Filter low-confidence text
-                x, y, w, h = data['left'][i], data['top'][i], data['width'][i], data['height'][i]
-                bounding_boxes.append({'text': text, 'coordinates': (x, y, x + w, y + h)})
+                x, y, w, h = (data['left'][i], data['top'][i],
+                              data['width'][i], data['height'][i])
+                # Save coordinates as (x, y, x+w, y+h)
+                bounding_boxes.append({
+                    'text': text,
+                    'coordinates': (int(x), int(y), int(x + w), int(y + h))
+                })
         except ValueError:
             continue
 
@@ -83,10 +88,20 @@ def combine_bounding_boxes(bounding_boxes, distance_threshold=50):
                 combined_text += f" {box2['text']}"
                 x1, y1, x2, y2 = combined_coords
                 x3, y3, x4, y4 = box2['coordinates']
-                combined_coords = [min(x1, x3), min(y1, y3), max(x2, x4), max(y2, y4)]
+                combined_coords = [
+                    min(x1, x3), 
+                    min(y1, y3), 
+                    max(x2, x4), 
+                    max(y2, y4)
+                ]
                 used.add(j)
 
-        combined_boxes.append({'text': combined_text, 'coordinates': tuple(combined_coords)})
+        # Ensure coordinates are native ints
+        combined_boxes.append({
+            'text': combined_text,
+            'coordinates': (int(combined_coords[0]), int(combined_coords[1]), 
+                            int(combined_coords[2]), int(combined_coords[3]))
+        })
 
     return combined_boxes
 
@@ -101,16 +116,10 @@ class Props(BaseModel):
     image_filename: str
 
 @floorplan_router.post("/api/floorplan")
-async def floorplan(
-        props: Props,
-    # description: str = Form(...),
-    # image_filename: str = Form(...)
-    # # image_file: UploadFile = Form(...)
-) -> JSONResponse:
+async def floorplan(props: Props) -> JSONResponse:
     description = props.description
     image_filename = props.image_filename
-    print(description)
-    print(image_filename)
+
     # Validate the file type
     if not image_filename.endswith(".png"):
         return JSONResponse(
@@ -118,33 +127,28 @@ async def floorplan(
             content={"error": "Invalid file type. Only .png files are supported."}
         )
 
-    # Read the uploaded file as a numpy array
-    image = cv2.imread("static/images/floor/" + image_filename)
-    # cv2.imshow("", image)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-    # image_array = np.frombuffer(await image_file.read(), np.uint8)
-    # image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    # Load the image from disk
+    image_path = os.path.join("static", "images", "floor", image_filename)
+    image = cv2.imread(image_path)
 
     if image is None:
         return JSONResponse(
             status_code=400,
-            content={"error": "Failed to process the image. Please try again."}
+            content={"error": f"Failed to open the image at '{image_path}'."}
         )
 
-    # Save the numpy array and grid to globals
+    # Save image to globals and initialize grid
     globals.numpy_image = image
     initialize_grid(image)
 
-    # Extract dimensions (height and width)
-    height, width = image.shape[:2]
-    print(height, width)
+    # Extract dimensions (height and width) as native ints
+    height, width = int(image.shape[0]), int(image.shape[1])
 
     # Convert to grayscale for icon detection
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Icon detection logic
-    base_path = "static/images/icons"  # Update to your icon folder path
+    base_path = "static/images/icons"
     icon_paths = [
         os.path.join(base_path, f)
         for f in os.listdir(base_path)
@@ -162,64 +166,114 @@ async def floorplan(
         locations = np.where(result >= threshold)
 
         for pt in zip(*locations[::-1]):  # Switch x and y
-            confidence = result[pt[1], pt[0]]
+            confidence = float(result[pt[1], pt[0]])
+            # Original box: (x1, y1, x2, y2)
+            x1, y1 = pt[0], pt[1]
+            x2, y2 = x1 + int(gray_icon.shape[1]), y1 + int(gray_icon.shape[0])
+
             detected_icons.append({
                 "icon_path": os.path.basename(icon_path),
-                "coordinates": list(map(int, (pt[0], pt[1], pt[0] + gray_icon.shape[1], pt[1] + gray_icon.shape[0]))),  # Ensure integers
-                "confidence": float(confidence)  # Convert to float
+                "coordinates": [int(x1), int(y1), int(x2), int(y2)],  # (x1, y1, x2, y2)
+                "confidence": confidence
             })
 
     filtered_icons = merge_close_coordinates(detected_icons)
 
-    # Text extraction logic
+    # Text extraction
     combined_bounding_boxes = extract_text_with_boxes(globals.numpy_image)
 
-    # Format the response
+    # Build icons dictionary in (y1, x1, y2, x2) format
     icons_dict = {}
     for icon in filtered_icons:
         icon_name = os.path.basename(icon['icon_path']).split('.')[0]
         if icon_name not in icons_dict:
             icons_dict[icon_name] = []
-        icons_dict[icon_name].append(icon['coordinates'])
+        x1, y1, x2, y2 = icon['coordinates']
+        # Flip to (y1, x1, y2, x2)
+        icons_dict[icon_name].append([int(y1), int(x1), int(y2), int(x2)])
 
+    # Build rooms dictionary in (y1, x1, y2, x2) format
     rooms_dict = {}
     for box in combined_bounding_boxes:
         text_name = box['text']
         if text_name not in rooms_dict:
             rooms_dict[text_name] = []
-        # Convert coordinates to Python int
-        rooms_dict[text_name].append(list(map(int, box['coordinates'])))
+        x1, y1, x2, y2 = map(int, box['coordinates'])
+        # Flip to (y1, x1, y2, x2)
+        rooms_dict[text_name].append([int(y1), int(x1), int(y2), int(x2)])
 
-    # Add height and width to the response
+    # Store in globals (all native types)
     response = {
-        "icons": icons_dict,
-        "rooms": rooms_dict,
-        "grid_size": 10,  # Ensure this is a Python int
+        "icons": icons_dict,  # Already flipped to (y1, x1, y2, x2)
+        "rooms": rooms_dict,  # Already flipped to (y1, x1, y2, x2)
+        "grid_size": 10,
         "height": height,
         "width": width
     }
-
     globals.coordinates = response
 
-    #inital pathfinding
+    # Pathfinding initialization
     img = globals.numpy_image
-    goals = globals.coordinates['icons']['exit']
+    # Tell Vincent if this changes PLEASE, need change /api/fire
     grid_size = 10
-
     final = {}
+
+    # final['icons'] is already in (y1, x1, y2, x2) format (all ints)
     final['icons'] = globals.coordinates["icons"]
     final['height'] = globals.coordinates["height"]
     final['width'] = globals.coordinates["width"]
     final['rooms'] = []
 
-    for start_room_names, values in globals.coordinates["rooms"].items():
-        for value in values:
-            midpoint = ((value[0] + value[2]) // 2, (value[1] + value[3]) // 2)
-            _, route = get_path(img, midpoint, goals, grid_size, False) # false for manhattan distance heuristic
+    # For the exit icons, compute midpoints in (row, col) = (y, x)
+    if "exit" in final['icons']:
+        exit_midpoints = [
+            [
+                int((bbox[0] + bbox[2]) // 2),  # y midpoint
+                int((bbox[1] + bbox[3]) // 2)   # x midpoint
+            ]
+            for bbox in final['icons']['exit']
+        ]
+    else:
+        exit_midpoints = []
+
+    # Compute midpoints for each room bounding box and run pathfinding
+    for room_name, boxes in globals.coordinates["rooms"].items():
+        for bbox in boxes:
+            # bbox is in (y1, x1, y2, x2)
+            y_mid = int((bbox[0] + bbox[2]) // 2)
+            x_mid = int((bbox[1] + bbox[3]) // 2)
+            # Call get_path with (y, x) for both start and exit midpoints.
+            cost, route = get_path(img, (y_mid, x_mid), exit_midpoints, grid_size, False)
+            # Convert route coordinates into native ints
+            route_converted = [[int(point[0]), int(point[1])] for point in route]
             final['rooms'].append({
-                "name" : start_room_names,
-                "text_bounding_box_coords": value, #guarnteed to be unique
-                "route": route
-                })
+                "name": str(room_name),
+                "text_bounding_box_coords": [int(coord) for coord in bbox],
+                "route": route_converted
+            })
 
     return JSONResponse(content=final)
+
+
+'''
+final = {
+    "icons": {
+        # Same structure as globals.coordinates["icons"]
+        # For example:
+        "exit": List[List[int]],              # List of exit icon boxes in [y1, x1, y2, x2] format
+        "exit_lift": List[List[int]],         # etc.
+        "extinguisher_powder": List[List[int]],
+        # ... additional icons ...
+    },
+    "height": int,       # Height of the floor image (in pixels)
+    "width": int,        # Width of the floor image (in pixels)
+    "rooms": [
+        {
+            "name": str,                             # The room name (e.g., "Hospital Level 5")
+            "text_bounding_box_coords": List[int],   # The room bounding box as [y1, x1, y2, x2]
+            "route": List[List[int]]                   # The computed route. Each point in the route is a list [y, x]
+        },
+        # ... one dictionary for each room bounding box processed ...
+    ]
+}
+'''

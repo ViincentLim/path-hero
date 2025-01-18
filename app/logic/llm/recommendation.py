@@ -1,14 +1,11 @@
-import base64
-import json
 import os
 from enum import Enum
-from typing import Union
 
 import cv2
 from PIL import Image
 from google import genai
 from google.genai import types
-from pydantic import BaseModel, parse_obj_as, ConfigDict, Extra
+from pydantic import BaseModel
 
 POSSIBLE_POINTS = [
     'exit',
@@ -37,23 +34,21 @@ class Step(BaseModel):
 
 class FireRecommendations(BaseModel):
     instructions: list[str]
-    # instruction_paths: list[str | None]
     instruction_paths: list[list[str]]
-    # steps: list[Step]
-    fire_locations: list[str]
-    class_of_fire: list[str]
-    object_on_fire: list[str]
+    fire_location: str
+    class_of_fire: str
+    object_on_fire: str
 
 
-def recommend(image: cv2.typing.MatLike, fire_coordinate: tuple[int, int]) -> FireRecommendations:
-    """Use it like this: recommend(cv2.imread('static/images/floor/hospital_simple.png'), (x, y))"""
-    """If you already have a cv2_image, use: recommend(cv2_image, (x, y))"""
+async def recommend(image: cv2.typing.MatLike, fire_coordinate: tuple[int, int]) -> FireRecommendations:
+    """Use it like this: recommend(cv2.imread('static/images/floor/hospital_simple.png'), (y, x))"""
+    """If you already have a cv2_image, use: recommend(cv2_image, (y, x))"""
     client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
     # Convert cv2 image from BGR to RGB, then cast it to PIL image for gemini api
     image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     fire_image_path = "static/images/fire.png"
     fire_image = Image.open(fire_image_path)
-    image.paste(fire_image, (fire_coordinate[0] - fire_image.width // 2, fire_coordinate[1] - fire_image.height // 2))
+    image.paste(fire_image, (fire_coordinate[1] - fire_image.height // 2, fire_coordinate[0] - fire_image.width // 2))
     # image.show()
 
     prompt = f"""
