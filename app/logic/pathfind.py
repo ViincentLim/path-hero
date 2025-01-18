@@ -51,6 +51,19 @@ def heuristic(a: Tuple[int, int], b: Tuple[int, int]) -> int:
     """
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
+def pixel_to_grid(pixel_coord: Tuple[int, int], grid_size: int) -> Tuple[int, int]:
+    """
+    Convert pixel coordinates to grid coordinates.
+    """
+    return pixel_coord[0] // grid_size, pixel_coord[1] // grid_size
+
+def grid_to_pixel(grid_coord: Tuple[int, int], grid_size: int) -> Tuple[int, int]:
+    """
+    Convert grid coordinates to pixel coordinates (center of the grid cell).
+    """
+    return grid_coord[0] * grid_size + grid_size // 2, grid_coord[1] * grid_size + grid_size // 2
+
+
 def a_star_pathfinding(
     grid: List[List[int]],
     start: Tuple[int, int],
@@ -120,10 +133,31 @@ def a_star_pathfinding(
 
     return []  # Return an empty path if no path to any goal is found
 
+def get_path(image, start, goals, grid_size=10):
+    grid = convert_image_to_grid(image, grid_size)
 
+    # Visualize the grid
+    # plt.imshow(grid, cmap='gray')
+    # plt.title("Converted Grid")
+    # plt.show()
 
-img_path = r"C:\Users\rithi\Documents\GitHub\path-hero\static\images\floor\cleaned_image.jpg"
-image = cv2.imread(img_path)
-grid_size = 10
+    # start = (500, 1100)
+    # goals = [(766, 359), (850, 1500)]
 
-grid = convert_image_to_grid(image, grid_size)
+    # Convert start and goals to grid coordinates
+    start_grid = pixel_to_grid(start, grid_size)
+    goals_grid = [pixel_to_grid(goal, grid_size) for goal in goals]
+    # print("Start (grid):", start_grid)
+    # print("Goals (grid):", goals_grid)
+
+    optimal_path_grid = a_star_pathfinding(grid, start_grid, goals_grid)
+
+    # Visualize the path on the grid
+    optimal_path_pixels = [grid_to_pixel(coord, grid_size) for coord in optimal_path_grid]
+    # for (x, y) in path_pixels:
+    #     cv2.circle(image, (y, x), radius=2, color=(0, 0, 255), thickness=-1)
+
+    # plt.imshow(image)
+    # plt.title("A* Pathfinding Path")
+    # plt.show()
+    return optimal_path_pixels
