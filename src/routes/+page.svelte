@@ -153,13 +153,11 @@
 	}
 </script>
 
-<div class="flex flex-col items-center px-10 py-4">
-	<!-- <h1 class="text-4xl mb-1"><a href="https://github.com/ViincentLim/path-hero">PATH HERO</a></h1>
-	<p class="mb-8">{displayDate}</p> -->
-	<nav class="underline text-left w-full mb-4 pl-20">
-		<a href="/add_floorplan">New Floorplan?</a>
-	</nav>
+<div class="flex flex-col items-center pr-10 pt-4 pb-0 h-[93vh]">
 	<div class="flex w-full gap-8 items-start justify-center">
+		<div class="h-screen">
+			<a href="/add_floorplan">&#10094;</a>
+		</div>
 		<div class="flex flex-col gap-4 w-1/6">
 			<Card
 				{...{
@@ -170,23 +168,8 @@
 				}}
 			/>
 			<div class="card p-4 h-44 w-full">
-				<div class="flex w-full justify-between mb-5">
-					<p>Start a fire?</p> 
-					<p class="text-3xl">🔥</p>
-				</div>
-				{#if !placingFire}
-				<button class="button variant-ghost-primary p-3 text-2xl" onclick={startFire}>Place Fires</button>
-				<p class="italic text-gray-400">Click map</p>
-				{:else}
-				<form method="post" class="flex flex-col justify-between items-start w-32" use:enhance onsubmit={handleSubmit}>
-					<input type="hidden" name="x" bind:value={fireXCoords}>
-					<input type="hidden" name="y" bind:value={fireYCoords}>
-					<input type="text" class="input text-2xl" name="description" bind:value={fireDescription} placeholder="Describe">
-					<button class="italic text-gray-400">Continue</button>
-				</form>
-				{/if}
 			</div>
-			<div class="card p-4 h-80 w-full overflow-auto">
+			<div class="card p-4 mb-0 h-80 w-full overflow-auto">
 				<div class="flex justify-between items-start">
 					<h1 class="text-3xl mb-3">Instructions</h1>
 					{#if instructionIndex < data.instructions.length-1}
@@ -199,9 +182,25 @@
 			</div>
 		</div>
 
-		<div class="w-3/4 overflow-hidden border-2 border-dashed p-1 rounded-md">
+		<div class="w-3/4 overflow-hidden">
 			<div id="map" style="height: {displayHeight}px">
 			</div>
 		</div>
 	</div>
 </div>
+<div class="w-full h-10 mr-10   flex justify-center ">
+	<div class="w-3/4 text-center flex justify-end">
+		<form method="post" class="flex justify-between items-start w-3/4 mr-4 gap-6" use:enhance onsubmit={handleSubmit}>
+			<input type="hidden" name="x" bind:value={fireXCoords}>
+			<input type="hidden" name="y" bind:value={fireYCoords}>
+			<input type="text" class="input text-lg w-full text-center" name="description" bind:value={fireDescription} placeholder="Eg. It is an electrical fire with casualties including one burned and inhaling smoke.">
+		</form>
+	</div>
+	<button class="text-5xl text-align-top  h-10" onclick={startFire}>🔥</button>
+</div>
+
+<style>
+	#map {
+		background-color: white;
+	}
+</style>
