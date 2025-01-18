@@ -15,6 +15,7 @@
       extinguisherCo2: LatLngExpression[],
       extinguisherFoam: LatLngExpression[],
       exits: LatLngExpression[], 
+      hoseReel: LatLngExpression[], 
 	  instructions: string[],
 	  routes: LatLngExpression[][]
 	}
@@ -75,6 +76,21 @@
 		}
 		for (let extinguisher of data.extinguisherFoam) {
 			createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
+		}
+		for (let extinguisher of data.extinguisherFoam) {
+			createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
+		}
+
+		for (let extinguisher of data.extinguisherCo2) {
+			createMarkerWithTooltip(extinguisher, "This is a CO2 extinguisher");
+		}
+
+		for (let extinguisher of data.extinguisherPowder) {
+			createMarkerWithTooltip(extinguisher, "This is a powder extinguisher");
+		}
+
+		for (let hose of data.hoseReel) {
+			createMarkerWithTooltip(hose, "This is a hose reel");
 		}
 	}
 
@@ -141,16 +157,6 @@
 			direction: "top", // Position of the tooltip
 		});
 	}
-
-	// Create markers for exits
-	// for (let exit of data.exits) {
-	// createMarkerWithTooltip(exit, "This is an exit");
-	// }
-
-	// // Create markers for extinguishers
-	// for (let extinguisher of data.extinguisherFoam) {
-	// createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
-	// }
 
 	function handleSubmit() {
 		setTimeout(() => {

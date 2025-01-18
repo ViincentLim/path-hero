@@ -16,7 +16,7 @@ export async function load() {
     const extinguisherPowder = transformCoordinates(icons.extinguisher_powder, height);
     const extinguisherCo2 = transformCoordinates(icons.extinguisher_co2, height);
     const extinguisherFoam = transformCoordinates(icons.extinguisher_foam, height);
-    const hoseReel = transformCoordinates(icons.hose_reel, height);
+    const hoseReel = transformCoordinates(icons.hosereel, height);
     const exits = transformCoordinates(icons.exit, height);
     const width = floorData.width
     const rooms = floorData.rooms
@@ -86,23 +86,22 @@ export const actions = {
    console.log(requestBody)
 
    const apiUrl = `http://localhost:8000/api/fire`
-
-   // Fetch data from the backend
-  //  const response = await fetch(apiUrl, {
-  //    method: "POST",
-  //    headers: {
-  //      "Content-Type": "application/json", // Set content type to JSON
-  //    },
-  //    body: requestBody,
-  //  })
-
-
-  //  if (!response.ok) {
-  //    throw new Error(`API request failed with status ${response.status}`);
-  //  }
+  // Fetch data from the backend
+   const response = await fetch(apiUrl, {
+     method: "POST",
+     headers: {
+       "Content-Type": "application/json", // Set content type to JSON
+     },
+     body: requestBody,
+   })
 
 
-  //  const data = await response.json()
-  //  await saveResponseToFile(data, "firedata.json")
+   if (!response.ok) {
+     throw new Error(`API request failed with status ${response.status}`);
+   }
+
+
+   const data = await response.json()
+   await saveResponseToFile(data, "floordata.json")
  },
 }
