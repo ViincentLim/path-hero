@@ -38,12 +38,10 @@
 	$: displayDate = time + " | " + formatDate("2025-01-19")
 	let interval: ReturnType<typeof setInterval>
 
-	// Height of map in px
-	const displayHeight = 700;
-
+		
 	// MAP STUFF
 	let map: LeafletMap
-	
+	const displayHeight = 700
 	const imageHeight = data.height
 	const imageWidth = data.width
 	const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
@@ -51,6 +49,7 @@
 		imageHeight / 2,
 		imageWidth / 2,
 	]
+	const minZoom = Math.log2(displayHeight / imageHeight);
 	
 	//FIRE
 	let placingFire = false
@@ -66,57 +65,78 @@
 
 	// PATH
 	let instructionIndex = 0
-	$: latlngs = data.routes[instructionIndex]
 	let polyline: L.Polyline
 	let decorator: PolylineDecorator
-	$: {
-		if (map && polyline && decorator) {
-			// Remove old polyline and decorator
-			map.removeLayer(polyline);
-			map.removeLayer(decorator);
+	$: latlngs = data.routes[instructionIndex]
+	function initializeMap() {
+		map = L.map("map", {
+		crs: L.CRS.Simple,
+		zoomControl: true,
+		dragging: true,
+		}).setView(center, minZoom);
 
-			// Add new polyline with updated latlngs
-			polyline = L.polyline(latlngs, { color: "red" }).addTo(map);
+		map.setMaxBounds(bounds);
+		map.options.maxZoom = 2;
+		map.options.minZoom = minZoom;
+		map.fitBounds(bounds);
 
-			// Add updated decorator
-			decorator = L.polylineDecorator(polyline, {
-				patterns: [
-					{
-						offset: "100%",
-						repeat: 0,
-						symbol: L.Symbol.arrowHead({
-							pixelSize: 20,
-							pathOptions: { color: "red", fillOpacity: 1 },
-						}),
-					},
-				],
-			}).addTo(map);
-		}
+		fireIcon = L.divIcon({
+		html: '<div class="text-red-500 text-6xl">🔥</div>',
+		iconSize: [0, 0],
+		iconAnchor: [40, 40],
+		});
+
+		L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
+
+		setupPolylineAndDecorator();
+		setupMapClickHandler();
 	}
 
+	function setupPolylineAndDecorator() {
+		if (polyline && decorator) {
+		map.removeLayer(polyline);
+		map.removeLayer(decorator);
+		}
 
+		polyline = L.polyline(latlngs, { color: "red" }).addTo(map);
 
-	onMount(async () => {
-		if (browser) {
-			const link = document.createElement("link");
-			link.rel = "stylesheet";
-			link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-			document.head.appendChild(link);
-			const minZoom = Math.log2(displayHeight/imageHeight);
-			map = L.map("map", {
-				crs: L.CRS.Simple,
-				zoomControl: true,
-				dragging: true,
-			}).setView(center, minZoom);
-			map.setMaxBounds(bounds);
-			map.options.maxZoom = 2
-			map.options.minZoom = minZoom
-			map.fitBounds(bounds);
-			fireIcon = L.divIcon({
-				html: '<div class="text-red-500 text-6xl">🔥</div>',
-				iconSize: [0, 0], // Adjust size if necessary
-				iconAnchor: [40, 40], // Center the icon
-			})
+		decorator = L.polylineDecorator(polyline, {
+		patterns: [
+			{
+			offset: "100%",
+			repeat: 0,
+			symbol: L.Symbol.arrowHead({
+				pixelSize: 20,
+				pathOptions: { color: "red", fillOpacity: 1 },
+			}),
+			},
+		],
+		}).addTo(map);
+	}
+
+	function setupMapClickHandler() {
+		map.on("click", (e) => {
+		if (placingFire) {
+			const { lat, lng } = e.latlng;
+			fireYCoords += imageHeight - lat + ",";
+			fireXCoords += lng + ",";
+			const marker = L.marker([lat, lng], { icon: fireIcon }).addTo(map);
+			fireMarkers.push(marker);
+		}
+		});
+	}
+
+	function clearFireMarkers() {
+		fireMarkers.forEach((marker) => map.removeLayer(marker));
+		fireMarkers = [];
+		fireXCoords = "";
+		fireYCoords = "";
+	}
+
+	// Initialize map on mount
+	onMount(() => {
+		initializeMap();
+	});
 
 			// for (let exit of data.exits) {
 			// 	const marker = L.circleMarker(exit, {
@@ -144,48 +164,13 @@
 			// 	})
 			// }
 
-			// load map
-			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map)
-			polyline = L.polyline(latlngs, {color: 'red'}).addTo(map)
-			decorator = L.polylineDecorator(polyline, {
-					patterns: [
-						{
-							offset: '100%',
-							repeat: 0,
-							symbol: L.Symbol.arrowHead({pixelSize: 20, pathOptions: {color: 'red', fillOpacity: 1}}),
-						},
-					],
-				}).addTo(map)
-
-			map.on("click", (e: any) => {
-			if (placingFire) {
-				const { lat, lng } = e.latlng
-				fireYCoords += (imageHeight - (lat as number)) + ","
-				fireXCoords += lng + ","
-				const marker = L.marker([lat, lng], { icon: fireIcon }).addTo(map)
-				fireMarkers.push(marker)
-				}
-			})
-		}
-		})
-
-		function clearFireMarkers() {
-			for (const marker of fireMarkers) {
-				map.removeLayer(marker); // Remove each marker from the map
-			}
-			fireMarkers = []; // Reset the markers array
-			fireXCoords = ""; // Clear fire coordinates
-			fireYCoords = ""; // Clear fire coordinates
-			fireDescription = ""; // Reset description input
-		}
-
 		function handleSubmit() {
-			setTimeout(() => {
-				clearFireMarkers();
-				placingFire = false;
-			}, 100); // Adjust delay as needed
-		}
-  </script>
+		setTimeout(() => {
+			clearFireMarkers();
+			placingFire = false;
+		}, 100); // Adjust delay as needed
+	}
+</script>
 
 <div class="flex flex-col items-center px-10 py-4">
 	<!-- <h1 class="text-4xl mb-1"><a href="https://github.com/ViincentLim/path-hero">PATH HERO</a></h1>
