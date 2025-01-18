@@ -68,7 +68,14 @@
 
 		L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
 
-		setupMapClickHandler();
+		setupMapClickHandler()
+
+		for (let exit of data.exits) {
+			createMarkerWithTooltip(exit, "This is an exit");
+		}
+		for (let extinguisher of data.extinguisherFoam) {
+			createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
+		}
 	}
 
 	$: {
@@ -116,34 +123,34 @@
 
 	// Initialize map on mount
 	onMount(() => {
-		initializeMap();
+		initializeMap()
 	});
 
-			// for (let exit of data.exits) {
-			// 	const marker = L.circleMarker(exit, {
-			// 		radius: 40,
-			// 		color: "transparent", // Makes the border invisible
-			// 		fillColor: "transparent", // Makes the fill invisible
-			// 		fillOpacity: 0, // Ensures no visible fill
-			// 	}).addTo(map)
-			// 	marker.bindTooltip("This is an exit", {
-			// 		permanent: false, // Tooltip shows only on hover
-			// 		direction: "top", // Position of the tooltip
-			// 	})
-			// }
+	function createMarkerWithTooltip(location: LatLngExpression, tooltipText: string) {
+		const marker = L.circleMarker(location, {
+			radius: 40,
+			color: "red", 
+			fillColor: "transparent", 
+			fillOpacity: 0, // Ensures no visible fill
+		}).addTo(map);
 
-			// for (let extinguishers of data.extinguisherFoam) {
-			// 	const marker = L.circleMarker(extinguishers, {
-			// 		radius: 40,
-			// 		color: "transparent", // Makes the border invisible
-			// 		fillColor: "transparent", // Makes the fill invisible
-			// 		fillOpacity: 0, // Ensures no visible fill
-			// 	}).addTo(map)
-			// 	marker.bindTooltip("This is a foam extinguisher", {
-			// 		permanent: false, // Tooltip shows only on hover
-			// 		direction: "top", // Position of the tooltip
-			// 	})
-			// }
+		console.log(location)
+
+		marker.bindTooltip(tooltipText, {
+			permanent: false, // Tooltip shows only on hover
+			direction: "top", // Position of the tooltip
+		});
+	}
+
+	// Create markers for exits
+	// for (let exit of data.exits) {
+	// createMarkerWithTooltip(exit, "This is an exit");
+	// }
+
+	// // Create markers for extinguishers
+	// for (let extinguisher of data.extinguisherFoam) {
+	// createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
+	// }
 
 	function handleSubmit() {
 		setTimeout(() => {

@@ -11,13 +11,13 @@ export async function load() {
     // FLOOR DATA
     const floorDataFileData = await readFile(floorDataFilePath, 'utf-8');
     const floorData = JSON.parse(floorDataFileData)
-    const icons = floorData.icons
-    const extinguisherPowder = icons.extinguisher_powder
-    const extinguisherCo2 = icons.extinguisher_co2
-    const extinguisherFoam = icons.extinguisher_foam
-    const hoseReel = icons.hose_reel
-    const exits = icons.exit
+    const icons = floorData.icons_midpoints
     const height = floorData.height
+    const extinguisherPowder = transformCoordinates(icons.extinguisher_powder, height);
+    const extinguisherCo2 = transformCoordinates(icons.extinguisher_co2, height);
+    const extinguisherFoam = transformCoordinates(icons.extinguisher_foam, height);
+    const hoseReel = transformCoordinates(icons.hose_reel, height);
+    const exits = transformCoordinates(icons.exit, height);
     const width = floorData.width
     const rooms = floorData.rooms
 
@@ -35,6 +35,7 @@ export async function load() {
       extinguisherPowder,
       extinguisherCo2,
       extinguisherFoam,
+      hoseReel,
       exits,
       instructions,
       routes,
@@ -50,6 +51,14 @@ export async function load() {
   }
 }
 
+function transformCoordinates(coords: number[], imageHeight: number) {
+  if (!coords || !Array.isArray(coords)) {
+    console.warn('Invalid or missing coordinates:', coords);
+    return []
+  }
+  // @ts-ignore
+  return coords.map(([y, x]) => [imageHeight - y, x]);
+}
 
 export const actions = {
  default: async ({ request }: { request: Request }) => {
