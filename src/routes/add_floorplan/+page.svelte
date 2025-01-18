@@ -8,7 +8,7 @@
   </nav>
   <div class="flex flex-col items-center p-10">
       <h2 class="text-4xl mb-10">ADD FLOORPLAN</h2>
-      <form method="post" class="flex flex-col gap-5 w-2/3 text-xl items-center p-5 mb-10">
+      <form method="post" class="flex flex-col gap-5 w-1/3 text-xl items-center p-5 mb-10">
         <label class="w-full flex justify-between">
           <p class="flex items-center text-xl">
             Floor Name
