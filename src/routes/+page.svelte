@@ -145,7 +145,7 @@
 	function createMarkerWithTooltip(location: LatLngExpression, tooltipText: string) {
 		const marker = L.circleMarker(location, {
 			radius: 40,
-			color: "red", 
+			color: "transparent", 
 			fillColor: "transparent", 
 			fillOpacity: 0, // Ensures no visible fill
 		}).addTo(map);
