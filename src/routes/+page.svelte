@@ -39,8 +39,8 @@
 		imageHeight / 2,
 		imageWidth / 2,
 	]
-	let fireXCoords: number
-	let fireYCoords: number
+	let fireXCoords: string = ""
+	let fireYCoords: string = ""
 	let fireDescription: string
 
 	onMount(async () => {
@@ -72,10 +72,9 @@
 			map.on("click", (e: any) => {
 			if (placingFire) {
 				const { lat, lng } = e.latlng;
-				fireXCoords = lat
-				fireYCoords = lng
+				fireYCoords += lat + ","
+				fireXCoords += lng + ","
 				L.marker([lat, lng], { icon: fireIcon }).addTo(map); // Place marker at clicked location
-				placingFire = false; // Exit "fire placing mode"
 				}
 			});
 		}
@@ -105,7 +104,7 @@
 		{#if !placingFire}
 		<button onclick={startFire}>Start a fire? (demo)</button>
 		{:else}
-		<form action="" method="POST">
+		<form method="post">
 			<input type="hidden" name="x" bind:value={fireXCoords}>
 			<input type="hidden" name="y" bind:value={fireYCoords}>
 			<input type="text" class="input" name="description" bind:value={fireDescription}>
