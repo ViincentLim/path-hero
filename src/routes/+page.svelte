@@ -11,7 +11,9 @@
 	  height: number,
       width: number,
       rooms: LatLngExpression[],
-      extinguishers: LatLngExpression[],
+      extinguisherPowder: LatLngExpression[],
+      extinguisherCo2: LatLngExpression[],
+      extinguisherFoam: LatLngExpression[],
       exits: LatLngExpression[], 
 	  instructions: string[],
 	  routes: LatLngExpression[][]
@@ -116,31 +118,31 @@
 				iconAnchor: [40, 40], // Center the icon
 			})
 
-			for (let exit of data.exits) {
-				const marker = L.circleMarker(exit, {
-					radius: 40,
-					color: "transparent", // Makes the border invisible
-					fillColor: "transparent", // Makes the fill invisible
-					fillOpacity: 0, // Ensures no visible fill
-				}).addTo(map)
-				marker.bindTooltip("This is an exit", {
-					permanent: false, // Tooltip shows only on hover
-					direction: "top", // Position of the tooltip
-				})
-			}
+			// for (let exit of data.exits) {
+			// 	const marker = L.circleMarker(exit, {
+			// 		radius: 40,
+			// 		color: "transparent", // Makes the border invisible
+			// 		fillColor: "transparent", // Makes the fill invisible
+			// 		fillOpacity: 0, // Ensures no visible fill
+			// 	}).addTo(map)
+			// 	marker.bindTooltip("This is an exit", {
+			// 		permanent: false, // Tooltip shows only on hover
+			// 		direction: "top", // Position of the tooltip
+			// 	})
+			// }
 
-			for (let extinguishers of data.extinguishers) {
-				const marker = L.circleMarker(extinguishers, {
-					radius: 40,
-					color: "transparent", // Makes the border invisible
-					fillColor: "transparent", // Makes the fill invisible
-					fillOpacity: 0, // Ensures no visible fill
-				}).addTo(map)
-				marker.bindTooltip("This is an extinguisher", {
-					permanent: false, // Tooltip shows only on hover
-					direction: "top", // Position of the tooltip
-				})
-			}
+			// for (let extinguishers of data.extinguisherFoam) {
+			// 	const marker = L.circleMarker(extinguishers, {
+			// 		radius: 40,
+			// 		color: "transparent", // Makes the border invisible
+			// 		fillColor: "transparent", // Makes the fill invisible
+			// 		fillOpacity: 0, // Ensures no visible fill
+			// 	}).addTo(map)
+			// 	marker.bindTooltip("This is a foam extinguisher", {
+			// 		permanent: false, // Tooltip shows only on hover
+			// 		direction: "top", // Position of the tooltip
+			// 	})
+			// }
 
 			// load map
 			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map)
