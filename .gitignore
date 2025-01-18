@@ -1,6 +1,9 @@
 test-results
 node_modules
 
+src/lib/firedata.json
+src/lib/floordata.json
+
 # Output
 .output
 .vercel

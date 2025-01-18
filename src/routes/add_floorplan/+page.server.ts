@@ -21,22 +21,22 @@ export const actions = {
    const apiUrl = `http://localhost:8000/api/floorplan`
 
    // Fetch data from the backend
-   const response = await fetch(apiUrl, {
-     method: "POST",
-     headers: {
-       "Content-Type": "application/json; charset=UTF-8", // Set content type to JSON
-     },
-     body: requestBody,
-   })
+  //  const response = await fetch(apiUrl, {
+  //    method: "POST",
+  //    headers: {
+  //      "Content-Type": "application/json", // Set content type to JSON
+  //    },
+  //    body: requestBody,
+  //  })
 
 
-   if (!response.ok) {
-     throw new Error(`API request failed with status ${response.status}`);
-   }
+  //  if (!response.ok) {
+  //    throw new Error(`API request failed with status ${response.status}`);
+  //  }
 
 
-   const data = await response.json()
-   await saveResponseToFile(data, "floordata.json")
+  //  const data = await response.json()
+  //  await saveResponseToFile(data, "floordata.json")
 
 
    redirect(303, "/")

@@ -11,8 +11,12 @@ export async function load() {
     // FLOOR DATA
     const floorDataFileData = await readFile(floorDataFilePath, 'utf-8');
     const floorData = JSON.parse(floorDataFileData)
-    const extinguishers = floorData.fire_extinguishers
-    const exits = floorData.exits
+    const icons = floorData.icons
+    const extinguisherPowder = icons.extinguisher_powder
+    const extinguisherCo2 = icons.extinguisher_co2
+    const extinguisherFoam = icons.extinguisher_foam
+    const hoseReel = icons.hose_reel
+    const exits = icons.exit
     const height = floorData.height
     const width = floorData.width
     const rooms = floorData.rooms
@@ -28,8 +32,10 @@ export async function load() {
       height,
       width,
       rooms,
-      extinguishers,
-      exits, 
+      extinguisherPowder,
+      extinguisherCo2,
+      extinguisherFoam,
+      exits,
       instructions,
       routes,
     }
