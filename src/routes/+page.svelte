@@ -2,9 +2,7 @@
 	import Card from "$lib/components/Card.svelte";
 	import { onMount, onDestroy } from "svelte"
 	import { browser } from "$app/environment";
-	import type { LatLngBoundsExpression } from "leaflet"
-
-	let map: any
+	import type { LatLngExpression, LatLngBoundsExpression, LatLngTuple } from "leaflet"
 
 	// CLOCK STUFF
 	function formatDate(dateString: string): string {
@@ -26,6 +24,12 @@
 	let interval: ReturnType<typeof setInterval>
 
 	// MAP STUFF
+	let map: any
+	const imageHeight = 549
+	const imageWidth = 1063
+	const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
+	// @ts-ignore
+	const center: LatLngExpression = bounds[1].map((x) => x!/2)
 	const room1Coordinates: LatLngExpression[] = [
 		[100, 100],
 		[200, 100],
@@ -47,8 +51,10 @@
 			const L = await import("leaflet"); // Dynamically import Leaflet
 		
 
-			map = L.map("map").setView([0, 0], 0);
-			const bounds: LatLngBoundsExpression = [[0, 0], [1000, 1000]];
+			map = L.map("map", {
+				crs: L.CRS.Simple,
+			}).setView(center, -1);
+			map.setMaxBounds(bounds)
 			L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
 			map.fitBounds(bounds)
 
