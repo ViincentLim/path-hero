@@ -3,32 +3,61 @@ import { readFile } from 'fs/promises'
 // @ts-ignore
 import path from 'path'
 
+const fs = require('fs').promises;
+
+async function fileExists(filePath: string) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function load() {
   const floorDataFilePath = path.resolve('./src/lib/floordata.json')
   const fireDataFilePath = path.resolve('./src/lib/firedata.json')
 
-  try {
-    // FLOOR DATA
-    const floorDataFileData = await readFile(floorDataFilePath, 'utf-8');
-    const floorData = JSON.parse(floorDataFileData)
-    const icons = floorData.icons_midpoints
-    const height = floorData.height
-    const extinguisherPowder = transformCoordinates(icons.extinguisher_powder, height);
-    const extinguisherCo2 = transformCoordinates(icons.extinguisher_co2, height);
-    const extinguisherFoam = transformCoordinates(icons.extinguisher_foam, height);
-    const hoseReel = transformCoordinates(icons.hosereel, height);
-    const exits = transformCoordinates(icons.exit, height);
-    const width = floorData.width
-    const rooms = floorData.rooms
+  let height, width, rooms, extinguisherPowder, extinguisherCo2, extinguisherFoam, hoseReel, exits;
+  let instructions = [], routes = [];
+
+      // FLOOR DATA
+    if (await fileExists(floorDataFilePath)) {
+      try {
+        const floorDataFileData = await fs.readFile(floorDataFilePath, 'utf-8');
+        const floorData = JSON.parse(floorDataFileData);
+        const icons = floorData.icons_midpoints;
+        height = floorData.height;
+        width = floorData.width;
+        rooms = floorData.rooms;
+        extinguisherPowder = transformCoordinates(icons.extinguisher_powder, height);
+        extinguisherCo2 = transformCoordinates(icons.extinguisher_co2, height);
+        extinguisherFoam = transformCoordinates(icons.extinguisher_foam, height);
+        hoseReel = transformCoordinates(icons.hosereel, height);
+        exits = transformCoordinates(icons.exit, height);
+      } catch (err) {
+        console.error(`Error reading or parsing floor data: ${err}`);
+      }
+    } else {
+      console.warn(`Floor data file not found: ${floorDataFilePath}`);
+    }
 
     // FIRE DATA
-    const fireDataFileData = await readFile(fireDataFilePath, 'utf-8')
-    const fireData = JSON.parse(fireDataFileData)
-    const recommendations = fireData.recommendations
-    const instructions = recommendations.instructions
-    const routes = recommendations.routes
+    if (await fileExists(fireDataFilePath)) {
+      try {
+        const fireDataFileData = await fs.readFile(fireDataFilePath, 'utf-8');
+        const fireData = JSON.parse(fireDataFileData);
+        const recommendations = fireData.recommendations;
+        instructions = recommendations.instructions || [];
+        routes = recommendations.routes || [];
+      } catch (err) {
+        console.error(`Error reading or parsing fire data: ${err}`);
+      }
+    } else {
+      console.warn(`Fire data file not found: ${fireDataFilePath}`);
+    }
 
-    return { 
+    return {
       height,
       width,
       rooms,
@@ -39,17 +68,8 @@ export async function load() {
       exits,
       instructions,
       routes,
-    }
-  } catch (error) {
-    console.error('Error reading recommendations file:', error);
-    return { 
-        analysis: null,
-        spreadData: null,
-        volumeData: null,
-        xAxis: null,
-    }
-  }
-}
+    };
+  } 
 
 function transformCoordinates(coords: number[], imageHeight: number) {
   if (!coords || !Array.isArray(coords)) {
