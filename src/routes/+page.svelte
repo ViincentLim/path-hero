@@ -54,8 +54,8 @@
 			map.options.maxZoom = 3
 			map.options.minZoom = 0
 			fireIcon = L.divIcon({
-				html: "🔥", // Fire emoji
-				iconSize: [1004, 104], // Adjust size if necessary
+				html: '<div class="text-red-500 text-6xl">🔥</div>', 
+				iconSize: [1, 1], // Adjust size if necessary
 				iconAnchor: [0, 0], // Center the icon
 			})
 
