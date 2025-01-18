@@ -10,7 +10,6 @@ export const actions = {
    const requestBody = JSON.stringify({
      description: name,
      image_filename: filename
-     image_filename: file
    })
    console.log(requestBody);
 

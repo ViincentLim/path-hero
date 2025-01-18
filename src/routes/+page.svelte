@@ -1,10 +1,9 @@
 <script lang="ts">
 	import Card from "$lib/components/Card.svelte";
-	import { onMount, onDestroy } from "svelte"
-	import { browser } from "$app/environment";
+	import { onMount } from "svelte"
 	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator } from "leaflet"
 	import L from "leaflet"
-  import { enhance } from "$app/forms";
+  	import { enhance } from "$app/forms";
 	import('leaflet-polylinedecorator')
 
 	export let data: {
@@ -18,26 +17,6 @@
 	  instructions: string[],
 	  routes: LatLngExpression[][]
 	}
-
-	// CLOCK STUFF
-	function formatDate(dateString: string): string {
-		const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-		const [year, month, day] = dateString.split("-");
-		const monthShort = months[parseInt(month, 10) - 1];
-		return `${parseInt(day, 10)} ${monthShort} ${year}`;
-	}
-
-	let time = ""
-	function updateClock() {
-		const now = new Date()
-		const hours = now.getHours().toString().padStart(2, "0")
-		const minutes = now.getMinutes().toString().padStart(2, "0")
-		const seconds = now.getSeconds().toString().padStart(2, "0")
-		time = `${hours}:${minutes}:${seconds}`
-	}
-	$: displayDate = time + " | " + formatDate("2025-01-19")
-	let interval: ReturnType<typeof setInterval>
-
 		
 	// MAP STUFF
 	let map: LeafletMap
