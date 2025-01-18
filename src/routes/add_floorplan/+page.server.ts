@@ -2,7 +2,7 @@ import { saveResponseToFile } from '$lib/utils/saveResponse'
 import { redirect } from '@sveltejs/kit';
 
 export const actions = {
-  default: async ({ request }) => {
+  default: async ({ request }: { request: Request }) => {
     const formData = await request.formData();
     const name = formData.get("name");
     const file = formData.get("file");
