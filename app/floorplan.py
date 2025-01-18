@@ -5,7 +5,8 @@ import numpy as np
 from PIL import Image
 import cv2
 import pytesseract
-import globals
+from .logic.pathfind import get_path
+import app.globals as globals
 import os
 
 floorplan_router = APIRouter()
@@ -182,4 +183,24 @@ async def floorplan(
 
     globals.coordinates = response
 
-    return JSONResponse(content=response)
+    #inital pathfinding
+    img = globals.numpy_image
+    goals = globals.coordinates['icons']['exit']
+    grid_size = 10
+
+    final = {}
+    final['icons'] = globals.coordinates["icons"]
+    final['height'] = globals.coordinates["height"]
+    final['width'] = globals.coordinates["width"]
+    final['rooms'] = []
+
+    for start_room_names, values in globals.coordinates["rooms"].items():
+        for value in values:
+            midpoint = ((value[0] + value[2]) // 2, (value[1] + value[3]) // 2)
+            final['rooms'].append({
+                "name" : start_room_names,
+                "text_bounding_box_coords": value, #guarnteed to be unique
+                "route":  get_path(img, midpoint, goals, grid_size)
+                })
+
+    return JSONResponse(content=final)

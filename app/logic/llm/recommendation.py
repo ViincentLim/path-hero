@@ -42,17 +42,24 @@ class FireRecommendations(BaseModel):
     # steps: list[Step]
     fire_locations: list[str]
     class_of_fire: list[str]
+    object_on_fire: list[str]
 
 
-def recommend(image: cv2.typing.MatLike) -> FireRecommendations:
-    """Use it like this: recommend(cv2.imread('static/images/floor/hospital_simple.png'))"""
+def recommend(image: cv2.typing.MatLike, fire_coordinate: tuple[int, int]) -> FireRecommendations:
+    """Use it like this: recommend(cv2.imread('static/images/floor/hospital_simple.png'), (x, y))"""
+    """If you already have a cv2_image, use: recommend(cv2_image, (x, y))"""
     client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
     # Convert cv2 image from BGR to RGB, then cast it to PIL image for gemini api
     image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    fire_image_path = "static/images/fire.png"
+    fire_image = Image.open(fire_image_path)
+    image.paste(fire_image, (fire_coordinate[0] - fire_image.width // 2, fire_coordinate[1] - fire_image.height // 2))
+    # image.show()
 
     prompt = f"""
-    There is a fire at 8-bedded ward 1!
-    Find the location of the fire and predict the likely class of fire if it is unknown. 
+    Find the location of the fire in the image.
+    Output object on fire. If no info given, consider what is likely to catch fire in the location.
+    Output the class of fire. if it is unknown, consider what class the object is ('A' if have plenty of solids like paper, 'B' if the room has flammable liquid, etc). 
     Give me a list of instructions for firefighting, along with the list of paths to take for each respective instruction (EMPTY list with 0 elements if this step does not require a path).
     Example (for this example, the fire is in drug store):
     // IMPORTANT: Explain the reasoning behind each step in detail (more detailed than my example if possible)
@@ -83,6 +90,7 @@ def recommend(image: cv2.typing.MatLike) -> FireRecommendations:
     - Rescue First: Prioritize occupant rescue. Medical staff should prepare non-ambulant patients with wheelchairs or mobile life support if needed
     - Pick the extinguisher or hosereel first before entering room
     - In a room with electrical appliances, isolate power first
+    - When people who aren't already on the floor enter the floor, starting point is an exit
     - When evacuating, final destination is always an exit
     - In server rooms or areas with high electrical loads, isolate electrical panels before suppressing fires. Use CO₂ or clean agent extinguishers, never water to prevent equipment damage.
     - Implement a ‘divide and conquer’ strategy—assign teams to both fire suppression and occupant evacuation concurrently.
