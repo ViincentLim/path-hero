@@ -133,7 +133,8 @@ def a_star_pathfinding(
 
     return []  # Return an empty path if no path to any goal is found
 
-def get_path(image, start, goals, grid_size=10):
+def get_path(img, start, goals, grid_size=10):
+    image = filter_walls_as_image(img)
     grid = convert_image_to_grid(image, grid_size)
 
     # Visualize the grid
