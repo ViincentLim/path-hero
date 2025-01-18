@@ -12,6 +12,10 @@ export const actions = {
      file: file
    })
 
+  default: async ({ request }: { request: Request }) => {
+    const formData = await request.formData();
+    const name = formData.get("name");
+    const file = formData.get("file");
 
    // Validate inputs
    if (!name || !file ) {
