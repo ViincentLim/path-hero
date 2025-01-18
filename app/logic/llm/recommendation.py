@@ -44,15 +44,20 @@ class FireRecommendations(BaseModel):
     class_of_fire: list[str]
 
 
-def recommend(image: cv2.typing.MatLike) -> FireRecommendations:
-    """Use it like this: recommend(cv2.imread('static/images/floor/hospital_simple.png'))"""
+def recommend(image: cv2.typing.MatLike, fire_coordinate: tuple[int, int]) -> FireRecommendations:
+    """Use it like this: recommend(cv2.imread('static/images/floor/hospital_simple.png'), (x, y))"""
+    """If you already have a cv2_image, use: recommend(cv2_image, (x, y))"""
     client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
     # Convert cv2 image from BGR to RGB, then cast it to PIL image for gemini api
     image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    fire_image_path = "static/images/fire.png"
+    fire_image = Image.open(fire_image_path)
+    image.paste(fire_image, (fire_coordinate[0] - fire_image.width // 2, fire_coordinate[1] - fire_image.height // 2))
+    # image.show()
 
     prompt = f"""
-    There is a fire at 8-bedded ward 1!
-    Find the location of the fire and predict the likely class of fire if it is unknown. 
+    Find the location of the fire in the image.
+    Predict the likely class of fire if it is unknown ('A' if have plenty of solids like paper, 'B' if the room has flammable liquid, etc). 
     Give me a list of instructions for firefighting, along with the list of paths to take for each respective instruction (EMPTY list with 0 elements if this step does not require a path).
     Example (for this example, the fire is in drug store):
     // IMPORTANT: Explain the reasoning behind each step in detail (more detailed than my example if possible)
