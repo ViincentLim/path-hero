@@ -42,6 +42,7 @@ class FireRecommendations(BaseModel):
     # steps: list[Step]
     fire_locations: list[str]
     class_of_fire: list[str]
+    object_on_fire: list[str]
 
 
 def recommend(image: cv2.typing.MatLike, fire_coordinate: tuple[int, int]) -> FireRecommendations:
@@ -57,7 +58,8 @@ def recommend(image: cv2.typing.MatLike, fire_coordinate: tuple[int, int]) -> Fi
 
     prompt = f"""
     Find the location of the fire in the image.
-    Predict the likely class of fire if it is unknown ('A' if have plenty of solids like paper, 'B' if the room has flammable liquid, etc). 
+    Output object on fire. If no info given, consider what is likely to catch fire in the location.
+    Output the class of fire. if it is unknown, consider what class the object is ('A' if have plenty of solids like paper, 'B' if the room has flammable liquid, etc). 
     Give me a list of instructions for firefighting, along with the list of paths to take for each respective instruction (EMPTY list with 0 elements if this step does not require a path).
     Example (for this example, the fire is in drug store):
     // IMPORTANT: Explain the reasoning behind each step in detail (more detailed than my example if possible)
@@ -88,6 +90,7 @@ def recommend(image: cv2.typing.MatLike, fire_coordinate: tuple[int, int]) -> Fi
     - Rescue First: Prioritize occupant rescue. Medical staff should prepare non-ambulant patients with wheelchairs or mobile life support if needed
     - Pick the extinguisher or hosereel first before entering room
     - In a room with electrical appliances, isolate power first
+    - When people who aren't already on the floor enter the floor, starting point is an exit
     - When evacuating, final destination is always an exit
     - In server rooms or areas with high electrical loads, isolate electrical panels before suppressing fires. Use CO₂ or clean agent extinguishers, never water to prevent equipment damage.
     - Implement a ‘divide and conquer’ strategy—assign teams to both fire suppression and occupant evacuation concurrently.
