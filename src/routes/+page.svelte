@@ -1,11 +1,10 @@
 <script lang="ts">
-    import Card from "$lib/components/Card.svelte";
-    import {onMount} from "svelte"
-    import type {LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator} from "leaflet"
-    import L from "leaflet"
-    import "leaflet/dist/leaflet.css"
-    import {enhance} from "$app/forms"
-    import 'leaflet-polylinedecorator'
+	import Card from "$lib/components/Card.svelte";
+	import { onMount } from "svelte"
+	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator } from "leaflet"
+	import L from "leaflet"
+	import "leaflet/dist/leaflet.css"
+	import 'leaflet-polylinedecorator'
 
 
     export let data: {
@@ -191,13 +190,6 @@
         });
     }
 
-    function clearFireMarkers() {
-        fireMarkers.forEach((marker) => map.removeLayer(marker));
-        fireMarkers = [];
-        fireXCoords = "";
-        fireYCoords = "";
-    }
-
     // Initialize map on mount
     onMount(() => {
         initializeMap()
@@ -221,7 +213,6 @@
 
     function handleSubmit() {
         setTimeout(() => {
-            clearFireMarkers();
             placingFire = false;
         }, 100); // Adjust delay as needed
     }
@@ -302,7 +293,7 @@
         </div>
     {/if}
     <div class="inline-flex w-[100%] gap-2" style="padding-left: 20px; padding-right: 20px;">
-        <form method="post" class="items-start w-[100%] gap-6" use:enhance
+        <form method="post" class="items-start w-[100%] gap-6"
               onsubmit={handleSubmit}>
             <input type="hidden" name="x" bind:value={fireXCoords}>
             <input type="hidden" name="y" bind:value={fireYCoords}>

@@ -2,7 +2,6 @@ import { saveResponseToFile } from '$lib/utils/saveResponse'
 import { readFile } from 'fs/promises'
 // @ts-ignore
 import path from 'path'
-
 import fs from 'fs/promises'
 
 async function fileExists(filePath: string) {
@@ -60,7 +59,6 @@ export async function load() {
           let newRoute = transformCoordinates(route, height)
           routes.push(newRoute)
         }
-        console.log(routes)
       } catch (err) {
         console.error(`Error reading or parsing fire data: ${err}`);
       }
@@ -157,5 +155,6 @@ export const actions = {
 
    const data = await response.json()
    await saveResponseToFile(data, "firedata.json")
+   load()
  },
 }
