@@ -4,13 +4,13 @@
 	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator } from "leaflet"
 	import L from "leaflet"
 	import "leaflet/dist/leaflet.css"
-  	import { enhance } from "$app/forms";
+  	import { enhance } from "$app/forms"
 	import('leaflet-polylinedecorator')
 
 	export let data: {
 	  height: number,
       width: number,
-      rooms: LatLngExpression[],
+      rooms: Room[],
       extinguisherPowder: LatLngExpression[],
       extinguisherCo2: LatLngExpression[],
       extinguisherFoam: LatLngExpression[],
@@ -54,18 +54,18 @@
 		crs: L.CRS.Simple,
 		zoomControl: true,
 		dragging: true,
-		}).setView(center, minZoom);
+		}).setView(center, minZoom)
 
 		map.setMaxBounds(bounds);
 		map.options.maxZoom = 2;
 		map.options.minZoom = minZoom;
-		map.fitBounds(bounds);
+		map.fitBounds(bounds)
 
 		fireIcon = L.divIcon({
 		html: '<div class="text-red-500 text-6xl">🔥</div>',
 		iconSize: [0, 0],
 		iconAnchor: [40, 40],
-		});
+		})
 
 		L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
 
@@ -80,17 +80,17 @@
 		for (let extinguisher of data.extinguisherFoam) {
 			createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
 		}
-
 		for (let extinguisher of data.extinguisherCo2) {
 			createMarkerWithTooltip(extinguisher, "This is a CO2 extinguisher");
 		}
-
 		for (let extinguisher of data.extinguisherPowder) {
 			createMarkerWithTooltip(extinguisher, "This is a powder extinguisher");
 		}
-
 		for (let hose of data.hoseReel) {
 			createMarkerWithTooltip(hose, "This is a hose reel");
+		}
+		for (let room of data.rooms) {
+			createMarkerWithTooltip(room.coords, "This is a room");
 		}
 	}
 

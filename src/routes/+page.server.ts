@@ -17,8 +17,9 @@ export async function load() {
   const floorDataFilePath = path.resolve('./src/lib/floordata.json')
   const fireDataFilePath = path.resolve('./src/lib/firedata.json')
 
-  let height, width, rooms, extinguisherPowder, extinguisherCo2, extinguisherFoam, hoseReel, exits;
+  let height, width, extinguisherPowder, extinguisherCo2, extinguisherFoam, hoseReel, exits;
   let instructions = [], routes = [];
+  let rooms: Room[] = []
 
     // FLOOR DATA
     if (await fileExists(floorDataFilePath)) {
@@ -28,12 +29,17 @@ export async function load() {
         const icons = floorData.icons_midpoints;
         height = floorData.height;
         width = floorData.width;
-        rooms = floorData.rooms;
+
         extinguisherPowder = transformCoordinates(icons.extinguisher_powder, height);
         extinguisherCo2 = transformCoordinates(icons.extinguisher_co2, height);
         extinguisherFoam = transformCoordinates(icons.extinguisher_foam, height);
         hoseReel = transformCoordinates(icons.hosereel, height);
         exits = transformCoordinates(icons.exit, height);
+
+        const roomRoutes = floorData.rooms;
+        const roomCoords = floorData.rooms_midpoints
+       rooms = processRooms(roomCoords, roomRoutes)
+        console.log(roomRoutes)
       } catch (err) {
         console.error(`Error reading or parsing floor data: ${err}`);
       }
@@ -77,6 +83,29 @@ function transformCoordinates(coords: number[], imageHeight: number) {
   }
   // @ts-ignore
   return coords.map(([y, x]) => [imageHeight - y, x]);
+}
+
+function processRooms(
+  roomsMidpoints: Record<string, number[][]>, // Object containing room names as keys and midpoints as values
+    rooms: Record<string, any> // Object containing room names as keys and additional room data
+  ): Room[] {
+  const roomRecords: Room[] = []
+
+  for (const [roomName, midpoints] of Object.entries(roomsMidpoints)) {
+    const roomData = rooms.find((room) => room.name === roomName)
+    const coords = midpoints[0]; // Assuming the first element in the array is the coordinate
+    const route = rooms[roomName]?.route || []; // Get the route from the `rooms` object, or use an empty array if not found
+
+    const room: Room = {
+      name: roomName,
+      coords: midpoints[0], // Assuming the first element in midpoints is the coordinate
+      route: roomData?.route || [], // Get the route from the matching room, or default to an empty array
+    };
+
+      roomRecords.push(room);
+    }
+
+  return roomRecords;
 }
 
 export const actions = {
