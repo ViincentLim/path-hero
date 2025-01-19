@@ -18,7 +18,7 @@ export async function load() {
   const floorDataFilePath = path.resolve('./src/lib/floordata.json')
   const fireDataFilePath = path.resolve('./src/lib/firedata.json')
 
-  let height, width, extinguisherPowder, extinguisherCo2, extinguisherFoam, hoseReel, exits;
+  let height, width, extinguisherPowder, extinguisherCo2, extinguisherFoam, hoseReel, exits, name, description
   let instructions = [], routes = [];
   let rooms: Room[] = []
 
@@ -30,6 +30,8 @@ export async function load() {
         const icons = floorData.icons_midpoints;
         height = floorData.height;
         width = floorData.width;
+        name = floorData.name
+        description = floorData.description
 
         extinguisherPowder = transformCoordinates(icons.extinguisher_powder, height);
         extinguisherCo2 = transformCoordinates(icons.extinguisher_co2, height);
@@ -72,6 +74,8 @@ export async function load() {
       exits,
       instructions,
       routes,
+      name,
+      description
     };
   } 
 

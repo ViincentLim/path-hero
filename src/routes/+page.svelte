@@ -17,8 +17,9 @@
         exits: LatLngExpression[],
         hoseReel: LatLngExpression[],
         instructions: string[],
-        routes: LatLngExpression[][]
-    }
+        routes: LatLngExpression[][],
+        name: string,
+	  description: string,}
 
     // MAP STUFF
     let map: LeafletMap
@@ -239,8 +240,8 @@
             <Card
                     {...{
                         title: "Floor Info",
-                        body: "Hospital Ward",
-                        subtitle: "Block A, Level 5",
+                        body: data.name,
+                        subtitle: data.description,
                         icon: "🗺️"
                     }}
             />
