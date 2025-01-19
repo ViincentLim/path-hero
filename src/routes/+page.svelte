@@ -20,6 +20,7 @@
         routes: LatLngExpression[][],
         name: string,
         description: string,
+		fileName: string,
     }
 
     // MAP STUFF
@@ -71,7 +72,7 @@
             iconAnchor: [40, 40],
         })
 
-        L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
+        L.imageOverlay(`/images/floor/${data.fileName}`, bounds).addTo(map);
 
         setupMapClickHandler()
 
