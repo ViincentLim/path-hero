@@ -245,7 +245,9 @@
             <div class="card p-4 h-44 w-full">
             </div>
             {#snippet instructions_footer()}
-                <button>Next</button>
+                {#if instructionIndex < data.instructions.length - 1}
+                    <button onclick={()=> instructionIndex++}>Next</button>
+                {/if}
             {/snippet}
             <Card title="Instructions" ,
                   body={data.instructions[instructionIndex]}
