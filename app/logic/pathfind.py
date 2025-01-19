@@ -63,7 +63,7 @@ def heuristic_fire(a: Tuple[int, int], b: Tuple[int, int], fire_coords: Optional
         for fx, fy in fire_coords:
             fire_distance = abs(a[0] - fx) + abs(a[1] - fy)
             penalty += max(0, (20 - fire_distance) ** 2)
-            if fire_distance < 1000:  # Threshold (adjust as needed)
+            if fire_distance < 50:  # Threshold (adjust as needed)
                 penalty += 1e12
 
     return base_distance + penalty
@@ -85,7 +85,7 @@ def a_star_pathfinding(
     grid: List[List[int]],
     start: Tuple[int, int],
     goals: List[Tuple[int, int]],
-    heuristic: bool, # true means heuristic_fire, false means heuristic
+    heuristic: bool, # true means heuristic_fire, false means heuristic_manhattan
     fire_coords: Optional[List[Tuple[int, int]]] = None
 ) -> tuple[float, list[Any]]:
     """
