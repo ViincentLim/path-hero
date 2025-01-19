@@ -223,63 +223,60 @@
 </script>
 
 <div class="flex flex-col items-center pr-10 pt-4 pb-0 h-[93vh]">
-	<div class="flex w-full gap-8 items-start justify-center">
-		<div class="h-screen">
-			<a href="/add_floorplan">&#10094;</a>
-		</div>
+    <div class="flex w-full gap-8 items-start justify-center">
+        <div class="h-screen">
+            <a href="/add_floorplan">&#10094;</a>
+        </div>
 
-		<div class="w-3/4 overflow-hidden">
-			<div id="map" style="height: {displayHeight}px">
-			</div>
-		</div>
+        <div class="w-3/4 overflow-hidden">
+            <div id="map" style="height: {displayHeight}px">
+            </div>
+        </div>
 
-		<div class="flex flex-col gap-4 w-1/6">
-			<Card
-				{...{
-					title: "Floor Info",
-					body: "Hospital Ward",
-					subtitle: "Block A, Level 5",
-					icon: "🗺️"
-				}}
-			/>
-			<div class="card p-4 h-44 w-full">
-			</div>
-			<Card
-				{...{
-					title: "Instructions",
-					body: data.instructions[instructionIndex],
-					subtitle: "Block A, Level 5",
-					icon: "🗺️"
-				}}
-			/>
-			<div class="card p-4 mb-0 h-80 w-full overflow-auto">
-				<div class="flex justify-between items-start">
-<!--					<h1 class="text-3xl mb-3">Instructions</h1>-->
-					<p>Instructions</p>
-					{#if instructionIndex < data.instructions.length-1}
-					<button class="text-2xl underline" onclick={()=> instructionIndex++}>&#9758;</button>
-					{:else}
-					<button class="text-2xl underline" onclick={()=> instructionIndex--}>&#9756;</button>
-					{/if}
-				</div>
-				<p>{data.instructions[instructionIndex]}</p>
-			</div>
-		</div>
-	</div>
+        <div class="flex flex-col gap-4 w-1/6">
+            <Card
+                    {...{
+                        title: "Floor Info",
+                        body: "Hospital Ward",
+                        subtitle: "Block A, Level 5",
+                        icon: "🗺️"
+                    }}
+            />
+            <div class="card p-4 h-44 w-full">
+            </div>
+            <Card title="Instructions" ,
+                  body={data.instructions[instructionIndex]}
+            />
+            <div class="card p-4 mb-0 h-80 w-full overflow-auto">
+                <div class="flex justify-between items-start">
+                    <!--					<h1 class="text-3xl mb-3">Instructions</h1>-->
+                    <p>Instructions</p>
+                    {#if instructionIndex < data.instructions.length - 1}
+                        <button class="text-2xl underline" onclick={()=> instructionIndex++}>&#9758;</button>
+                    {:else}
+                        <button class="text-2xl underline" onclick={()=> instructionIndex--}>&#9756;</button>
+                    {/if}
+                </div>
+                <p>{data.instructions[instructionIndex]}</p>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="w-full h-10 mr-10   flex justify-center ">
-	<div class="w-3/4 text-center flex justify-end">
-		<form method="post" class="flex justify-between items-start w-3/4 mr-4 gap-6" use:enhance onsubmit={handleSubmit}>
-			<input type="hidden" name="x" bind:value={fireXCoords}>
-			<input type="hidden" name="y" bind:value={fireYCoords}>
-			<input type="text" class="input text-lg w-full text-center" name="description" bind:value={fireDescription} placeholder="Eg. It is an electrical fire with casualties including one burned and inhaling smoke.">
-		</form>
-	</div>
-	<button class="text-5xl text-align-top  h-10" onclick={startFire}>🔥</button>
+    <div class="w-3/4 text-center flex justify-end">
+        <form method="post" class="flex justify-between items-start w-3/4 mr-4 gap-6" use:enhance
+              onsubmit={handleSubmit}>
+            <input type="hidden" name="x" bind:value={fireXCoords}>
+            <input type="hidden" name="y" bind:value={fireYCoords}>
+            <input type="text" class="input text-lg w-full text-center" name="description" bind:value={fireDescription}
+                   placeholder="Eg. It is an electrical fire with casualties including one burned and inhaling smoke.">
+        </form>
+    </div>
+    <button class="text-5xl text-align-top  h-10" onclick={startFire}>🔥</button>
 </div>
 
 <style>
-	#map {
-		background-color: white;
-	}
+    #map {
+        background-color: white;
+    }
 </style>
