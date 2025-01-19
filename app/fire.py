@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 import app.globals as globals
 from app.logic.llm.recommendation import recommend, FireRecommendations
-from app.logic.pathfind import get_path, heuristic_fire, a_star_pathfinding, pixel_to_grid
+from app.logic.pathfind import get_path, heuristic_fire, a_star_pathfinding, pixel_to_grid, grid_to_pixel
 
 fire_router = APIRouter()
 
@@ -48,59 +48,89 @@ async def fire(props: Props):
     recommendation: FireRecommendations = await recommend(image=globals.numpy_image, fire_coordinate=fire_coordinate)
     routes: list[list[tuple[int, int]]] = []
     for instruction_path in recommendation.instruction_paths:
-        routes.append([])
-        # Example: instruction_path = ['exit', 'Toilet', 'exit']
-        if len(instruction_path) > 1:
-            number_of_routes = len(instruction_path) - 1
-            possible_routes = []
-            possible_distances = []
-            for i in range(number_of_routes):
-                [start, end] = instruction_path[i:i + 2]
-                all_possible_start = []
-                if start in globals.coordinates['icons']:
-                    all_possible_start = globals.coordinates['icons'][start]
-                elif start in globals.coordinates['rooms']:
-                    all_possible_start = globals.coordinates['rooms'][start]
+        # If the instruction_path has 1 or 0 elements, no actual path needed
+        if len(instruction_path) < 2:
+            routes.append([])
+            continue
 
-                all_possible_end = []
-                if end in globals.coordinates['icons']:
-                    all_possible_end = globals.coordinates['icons'][end]
-                elif end in globals.coordinates['rooms']:
-                    all_possible_end = globals.coordinates['rooms'][end]
+        accumulated_pixel_path: list[tuple[int, int]] = []
 
-                # HACK START
-                possible_start_tuple = (all_possible_start[0][0], all_possible_start[0][1])
-                possible_end_tuple = (all_possible_end[0][0], all_possible_end[0][1])
-                distance, optimal_path = a_star_pathfinding(globals.grid,
-                                                            pixel_to_grid(possible_start_tuple, grid_size=10),
-                                                            [pixel_to_grid(possible_end_tuple, grid_size=10)],
-                                                            heuristic=True, fire_coords=[fire_coordinate])
-                routes[-1].extend(merge_lines_in_path(optimal_path))
-                # HACK END
+        # build the route segment by segment, e.g.:
+        # if instruction_path == ["exit", "Toilet", "exit"]
+        # segment 1 = ("exit", "Toilet"), segment 2 = ("Toilet", "exit")
+        number_of_routes = len(instruction_path) - 1
 
-                # TODO: fill all possible start and end
-                # # globals.coordinates['icons']
-                # # globals.coordinates['rooms']
-                # current_possible_distances = np.full((len(all_possible_start), len(all_possible_end)), np.inf)
-                # current_possible_routes = np.empty(shape=(len(all_possible_start), len(all_possible_end)), dtype=object)
-                # for j, possible_start in enumerate(all_possible_start):
-                #     for k, possible_end in enumerate(all_possible_end):
-                #         possible_start_tuple = (possible_start[0], possible_start[1])
-                #         possible_end_tuple = (possible_end[0], possible_end[1])
-                #         (distance, route) = get_path(globals.numpy_image, possible_start_tuple, [possible_end_tuple])
-                #         # (distance, route) = a_star_pathfinding(globals.grid, pixel_to_grid(possible_start_tuple, grid_size=10), [pixel_to_grid(possible_end_tuple, grid_size=10)], heuristic=True, fire_coords=[fire_coordinate])
-                #         if distance == float('inf'):
-                #             print("this gives inf", possible_start_tuple, possible_end_tuple)
-                #         print('distance:', distance)
-                #         current_possible_routes[j, k] = route
-                #         current_possible_distances[j, k] = distance
-                # if i == 0:
-                #     print(current_possible_distances)
-                #     print("\n")
-                #
-                # # current_possible_routes[:, 0] = start
-                # # print(start, end)
-                # possible_distances.append(current_possible_distances)
-                # possible_routes.append(current_possible_routes)
+        for i in range(number_of_routes):
+            start_label = instruction_path[i]
+            end_label   = instruction_path[i + 1]
 
-    return {"instructions": recommendation.instructions, "routes": routes}
+            all_possible_start = []
+            if start_label in globals.coordinates["icons"]:
+                all_possible_start = globals.coordinates["icons"][start_label]
+            elif start_label in globals.coordinates["rooms"]:
+                all_possible_start = globals.coordinates["rooms"][start_label]
+
+            all_possible_end = []
+            if end_label in globals.coordinates["icons"]:
+                all_possible_end = globals.coordinates["icons"][end_label]
+            elif end_label in globals.coordinates["rooms"]:
+                all_possible_end = globals.coordinates["rooms"][end_label]
+
+            # If either start or end doesn't exist in our mapping, skip
+            if not all_possible_start or not all_possible_end:
+                continue
+
+            # Prepare arrays to keep track of all route distances
+            current_possible_distances = np.full(
+                (len(all_possible_start), len(all_possible_end)), np.inf
+            )
+            current_possible_routes = np.empty(
+                (len(all_possible_start), len(all_possible_end)), dtype=object
+            )
+
+            # For each possible start-end pair, run A* to find a path
+            for j, possible_start in enumerate(all_possible_start):
+                for k, possible_end in enumerate(all_possible_end):
+                    start_grid = pixel_to_grid((possible_start[0], possible_start[1]), grid_size=10)
+                    end_grid   = pixel_to_grid((possible_end[0], possible_end[1]), grid_size=10)
+
+                    distance, route_grid = a_star_pathfinding(
+                        globals.grid,
+                        start_grid,
+                        [end_grid],
+                        heuristic=True,
+                        fire_coords=[fire_coordinate]
+                    )
+
+                    current_possible_distances[j, k] = distance
+                    current_possible_routes[j, k] = route_grid
+
+            # Select the minimum distance route among all possible combos
+            min_index = np.argmin(current_possible_distances)
+            row, col = np.unravel_index(min_index, current_possible_distances.shape)
+            best_distance = current_possible_distances[row, col]
+            best_route_grid = current_possible_routes[row, col]
+
+            if best_distance == float("inf") or not best_route_grid:
+                # No path found among any start-end combos
+                continue
+
+            best_route_pixels = [grid_to_pixel(rc, 10) for rc in best_route_grid]
+
+            # Concatenate this segment route into accumulated path
+            if i == 0:
+                # First segment: add everything
+                accumulated_pixel_path.extend(best_route_pixels)
+            else:
+                # If continuing from the last segment, skip the first node
+                # to avoid duplication, because it should match the end of the previous segment
+                accumulated_pixel_path.extend(best_route_pixels[1:])
+
+        # Optionally merge collinear segments to reduce unneeded waypoints
+        merged_path = merge_lines_in_path(accumulated_pixel_path)
+        routes.append(merged_path)
+
+    return {
+        "instructions": recommendation.instructions,
+        "routes": routes
+    }
