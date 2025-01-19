@@ -71,7 +71,7 @@ async def recommend(image: cv2.typing.MatLike, fire_coordinate: tuple[int, int])
         "Send those 3 people to set up hose to the fire location and attack the fire, replacing the previous firefighters with extinguishers.",
         "Send 2 people to set up hose to the fire location and do boundary cooling at the adjacent toilet on the wall adjacent to the drug store.",
     ]
-    // Possible points for path: {POSSIBLE_POINTS} or the respective room name
+    // Possible points for path: {POSSIBLE_POINTS} or the respective room name (exact spelling and capitalization)
     instruction_paths: [
         ["exit", "extinguisher_foam", "Drug Store"],
         ["Drug Store", "exit"],
@@ -114,7 +114,7 @@ async def recommend(image: cv2.typing.MatLike, fire_coordinate: tuple[int, int])
                                               config=types.GenerateContentConfig(
                                                   response_mime_type="application/json",
                                                   response_schema=FireRecommendations,
-                                                  temperature=1.5
+                                                  temperature=1.3
                                               ))
     # return response.text
     return FireRecommendations.model_validate_json(response.text)

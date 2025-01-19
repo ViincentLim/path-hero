@@ -104,7 +104,7 @@ def a_star_pathfinding(
     rows, cols = len(grid), len(grid[0])
 
     if fire_coords:
-        grid = mark_fire_zones(grid, fire_coords, fire_proximity_threshold=300, fire_size="s", grid_size=10)
+        grid = mark_fire_zones(grid, fire_coords, fire_proximity_threshold=150, fire_size="s", grid_size=10)
 
     def is_within_bounds(coord):
         x, y = coord
@@ -214,7 +214,7 @@ def mark_fire_zones(
         fire_radius *= 2  # Increase radius for large fires
 
     rows, cols = len(grid), len(grid[0])
-    for fx, fy in fire_coords:
+    for fy, fx in fire_coords:
         fx_grid, fy_grid = fx // grid_size, fy // grid_size  # Map fire coords to grid
         for i in range(max(0, fx_grid - fire_radius), min(rows, fx_grid + fire_radius + 1)):
             for j in range(max(0, fy_grid - fire_radius), min(cols, fy_grid + fire_radius + 1)):
