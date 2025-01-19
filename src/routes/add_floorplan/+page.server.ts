@@ -35,8 +35,11 @@ export const actions = {
    }
 
 
+
    const data = await response.json()
-   await saveResponseToFile(data, "floordata.json")
+   if (data !== null) {
+     await saveResponseToFile(data, "floordata.json")
+   } 
 
 
    redirect(303, "/")

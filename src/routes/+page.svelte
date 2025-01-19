@@ -1,172 +1,225 @@
 <script lang="ts">
-    import Card from "$lib/components/Card.svelte";
-    import {onMount} from "svelte"
-    import type {LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator} from "leaflet"
-    import L from "leaflet"
-    import "leaflet/dist/leaflet.css"
-    import {enhance} from "$app/forms"
+	import Card from "$lib/components/Card.svelte";
+	import { onMount } from "svelte"
+	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator } from "leaflet"
+	import L from "leaflet"
+	import "leaflet/dist/leaflet.css"
+  	import { enhance } from "$app/forms"
+	import('leaflet-polylinedecorator')
 
-    import('leaflet-polylinedecorator')
+	export let data: {
+	  height: number,
+      width: number,
+      rooms: Room[],
+      extinguisherPowder: LatLngExpression[],
+      extinguisherCo2: LatLngExpression[],
+      extinguisherFoam: LatLngExpression[],
+      exits: LatLngExpression[], 
+      hoseReel: LatLngExpression[], 
+	  instructions: string[],
+	  routes: LatLngExpression[][]
+	}
+		
+	// MAP STUFF
+	let map: LeafletMap
+	const displayHeight = 700
+	const imageHeight = data.height
+	const imageWidth = data.width
+	const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
+	const center: LatLngExpression = [
+		imageHeight / 2,
+		imageWidth / 2,
+	]
+	const minZoom = Math.log2(displayHeight / imageHeight);
+	
+	//FIRE
+	let placingFire = false
+	let fireIcon: any
+	let fireXCoords: string = ""
+	let fireYCoords: string = ""
+	let fireDescription: string
+	let fireMarkers: L.Marker[] = []
+	function startFire() {
+		placingFire = true
+	}
 
-    export let data: {
-        height: number,
-        width: number,
-        rooms: Room[],
-        extinguisherPowder: LatLngExpression[],
-        extinguisherCo2: LatLngExpression[],
-        extinguisherFoam: LatLngExpression[],
-        exits: LatLngExpression[],
-        hoseReel: LatLngExpression[],
-        instructions: string[],
-        routes: LatLngExpression[][]
+
+	// PATH
+	let instructionIndex = 0
+	let polyline: L.Polyline
+	let decorator: PolylineDecorator
+	$: latlngs = data.routes[instructionIndex]
+	function initializeMap() {
+		map = L.map("map", {
+		crs: L.CRS.Simple,
+		zoomControl: true,
+		dragging: true,
+		}).setView(center, minZoom)
+
+		map.setMaxBounds(bounds);
+		map.options.maxZoom = 2;
+		map.options.minZoom = minZoom;
+		map.fitBounds(bounds)
+
+		fireIcon = L.divIcon({
+		html: '<div class="text-red-500 text-6xl">🔥</div>',
+		iconSize: [0, 0],
+		iconAnchor: [40, 40],
+		})
+
+		L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
+
+		setupMapClickHandler()
+
+		for (let exit of data.exits) {
+			createMarkerWithTooltip(exit, "This is an exit");
+		}
+		for (let extinguisher of data.extinguisherFoam) {
+			createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
+		}
+		for (let extinguisher of data.extinguisherFoam) {
+			createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
+		}
+		for (let extinguisher of data.extinguisherCo2) {
+			createMarkerWithTooltip(extinguisher, "This is a CO2 extinguisher");
+		}
+		for (let extinguisher of data.extinguisherPowder) {
+			createMarkerWithTooltip(extinguisher, "This is a powder extinguisher");
+		}
+		for (let hose of data.hoseReel) {
+			createMarkerWithTooltip(hose, "This is a hose reel");
+		}
+		for (let room of data.rooms) {
+			createMarkerWithTooltip(room.coords as LatLngExpression, `This is ${room.name}`);
+		}
+		initializeRoomPolylines(data.rooms, map)
+	}
+
+	$: {
+    if (map) {
+      // Remove old polyline and decorator if they exist
+      if (polyline) map.removeLayer(polyline);
+      if (decorator) map.removeLayer(decorator);
+
+      // Create new polyline and decorator with updated latlngs
+      polyline = L.polyline(latlngs, { color: "red" }).addTo(map);
+      decorator = L.polylineDecorator(polyline, {
+        patterns: [
+          {
+            offset: "100%",
+            repeat: 0,
+            symbol: L.Symbol.arrowHead({
+              pixelSize: 20,
+              pathOptions: { color: "red", fillOpacity: 1 },
+            }),
+          },
+        ],
+      }).addTo(map);
     }
+  }
 
-    // MAP STUFF
-    let map: LeafletMap
-    const displayHeight = 700
-    const imageHeight = data.height
-    const imageWidth = data.width
-    const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
-    const center: LatLngExpression = [
-        imageHeight / 2,
-        imageWidth / 2,
-    ]
-    const minZoom = Math.log2(displayHeight / imageHeight);
+  function initializeRoomPolylines(rooms: Room[], map: L.Map) {
+  rooms.forEach((room) => {
+    // Create a polyline for the room's route
+    const polyline = L.polyline(room.route as LatLngExpression[], {
+      color: "blue",
+      weight: 4,
+      dashArray: "5, 10", // Optional: Dashed line style
+    }).addTo(map);
 
-    //FIRE
-    let placingFire = false
-    let fireIcon: any
-    let fireXCoords: string = ""
-    let fireYCoords: string = ""
-    let fireDescription: string
-    let fireMarkers: L.Marker[] = []
+    // Add an arrowhead to the polyline using the Leaflet.PolylineDecorator plugin
+    const arrowHead = L.polylineDecorator(polyline, {
+      patterns: [
+        {
+          offset: "100%", // Arrow at the end
+          repeat: 0, // No repetition
+          symbol: L.Symbol.arrowHead({
+            pixelSize: 15,
+            polygon: true,
+            pathOptions: { fillColor: "blue", fillOpacity: 1, stroke: true, weight: 1 },
+          }),
+        },
+      ],
+    }).addTo(map);
 
-    function startFire() {
-        placingFire = true
-    }
+    // Hide the polyline and arrowhead by default
+    polyline.setStyle({ opacity: 0 });
+    arrowHead.setStyle({ opacity: 0 });
 
+    // Create a marker for the room at its coordinates
+    const marker = L.circleMarker(room.coords as LatLngExpression, {
+      radius: 30,
+      color: "transparent",
+      fillColor: "transparent",
+      fillOpacity: 1,
+    }).addTo(map);
 
-    // PATH
-    let instructionIndex = 0
-    let polyline: L.Polyline
-    let decorator: PolylineDecorator
-    $: latlngs = data.routes[instructionIndex]
-
-    function initializeMap() {
-        map = L.map("map", {
-            crs: L.CRS.Simple,
-            zoomControl: true,
-            dragging: true,
-        }).setView(center, minZoom)
-
-        map.setMaxBounds(bounds);
-        map.options.maxZoom = 2;
-        map.options.minZoom = minZoom;
-        map.fitBounds(bounds)
-
-        fireIcon = L.divIcon({
-            html: '<div class="text-red-500 text-6xl">🔥</div>',
-            iconSize: [0, 0],
-            iconAnchor: [40, 40],
-        })
-
-        L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
-
-        setupMapClickHandler()
-
-        for (let exit of data.exits) {
-            createMarkerWithTooltip(exit, "This is an exit");
-        }
-        for (let extinguisher of data.extinguisherFoam) {
-            createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
-        }
-        for (let extinguisher of data.extinguisherFoam) {
-            createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
-        }
-        for (let extinguisher of data.extinguisherCo2) {
-            createMarkerWithTooltip(extinguisher, "This is a CO2 extinguisher");
-        }
-        for (let extinguisher of data.extinguisherPowder) {
-            createMarkerWithTooltip(extinguisher, "This is a powder extinguisher");
-        }
-        for (let hose of data.hoseReel) {
-            createMarkerWithTooltip(hose, "This is a hose reel");
-        }
-        for (let room of data.rooms) {
-            createMarkerWithTooltip(room.coords, "This is a room");
-        }
-    }
-
-    $: {
-        if (map) {
-            // Remove old polyline and decorator if they exist
-            if (polyline) map.removeLayer(polyline);
-            if (decorator) map.removeLayer(decorator);
-
-            // Create new polyline and decorator with updated latlngs
-            polyline = L.polyline(latlngs, {color: "red"}).addTo(map);
-            decorator = L.polylineDecorator(polyline, {
-                patterns: [
-                    {
-                        offset: "100%",
-                        repeat: 0,
-                        symbol: L.Symbol.arrowHead({
-                            pixelSize: 20,
-                            pathOptions: {color: "red", fillOpacity: 1},
-                        }),
-                    },
-                ],
-            }).addTo(map);
-        }
-    }
-
-
-    function setupMapClickHandler() {
-        map.on("click", (e) => {
-            if (placingFire) {
-                const {lat, lng} = e.latlng;
-                fireYCoords += imageHeight - lat + ",";
-                fireXCoords += lng + ",";
-                const marker = L.marker([lat, lng], {icon: fireIcon}).addTo(map);
-                fireMarkers.push(marker);
-            }
-        });
-    }
-
-    function clearFireMarkers() {
-        fireMarkers.forEach((marker) => map.removeLayer(marker));
-        fireMarkers = [];
-        fireXCoords = "";
-        fireYCoords = "";
-    }
-
-    // Initialize map on mount
-    onMount(() => {
-        initializeMap()
+    // On hover, show the polyline and arrowhead
+    marker.on("mouseover", () => {
+      polyline.setStyle({ opacity: 1 });
+      arrowHead.setStyle({ opacity: 1 });
     });
 
-    function createMarkerWithTooltip(location: LatLngExpression, tooltipText: string) {
-        const marker = L.circleMarker(location, {
-            radius: 40,
-            color: "transparent",
-            fillColor: "transparent",
-            fillOpacity: 0, // Ensures no visible fill
-        }).addTo(map);
+    // On mouseout, hide the polyline and arrowhead
+    marker.on("mouseout", () => {
+      polyline.setStyle({ opacity: 0 });
+      arrowHead.setStyle({ opacity: 0 });
+    });
 
-        console.log(location)
+    // Optionally bind a tooltip to the marker
+    marker.bindTooltip(room.name, {
+      permanent: false,
+      direction: "top",
+    });
+  });
+}
 
-        marker.bindTooltip(tooltipText, {
-            permanent: false, // Tooltip shows only on hover
-            direction: "top", // Position of the tooltip
-        });
-    }
+	function setupMapClickHandler() {
+		map.on("click", (e) => {
+		if (placingFire) {
+			const { lat, lng } = e.latlng;
+			fireYCoords += imageHeight - lat + ",";
+			fireXCoords += lng + ",";
+			const marker = L.marker([lat, lng], { icon: fireIcon }).addTo(map);
+			fireMarkers.push(marker);
+		}
+		});
+	}
 
-    function handleSubmit() {
-        setTimeout(() => {
-            clearFireMarkers();
-            placingFire = false;
-        }, 100); // Adjust delay as needed
-    }
+	function clearFireMarkers() {
+		fireMarkers.forEach((marker) => map.removeLayer(marker));
+		fireMarkers = [];
+		fireXCoords = "";
+		fireYCoords = "";
+	}
+
+	// Initialize map on mount
+	onMount(() => {
+		initializeMap()
+	});
+
+	function createMarkerWithTooltip(location: LatLngExpression, tooltipText: string) {
+		const marker = L.circleMarker(location, {
+			radius: 40,
+			color: "transparent", 
+			fillColor: "transparent", 
+			fillOpacity: 0, // Ensures no visible fill
+		}).addTo(map);
+
+		console.log(location)
+
+		marker.bindTooltip(tooltipText, {
+			permanent: false, // Tooltip shows only on hover
+			direction: "top", // Position of the tooltip
+		});
+	}
+
+	function handleSubmit() {
+		setTimeout(() => {
+			clearFireMarkers();
+			placingFire = false;
+		}, 100); // Adjust delay as needed
+	}
 </script>
 
 <div class="flex flex-col items-center pr-10 pt-4 pb-0 h-[93vh]">
