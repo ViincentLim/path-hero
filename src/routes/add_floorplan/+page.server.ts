@@ -44,15 +44,15 @@ export const actions = {
    if (data !== null) {
       data.name = name
       data.description = description
+      data.fileName = filename
      await saveResponseToFile(data, "floordata.json")
    } 
 
    const fireDataFilePath = path.resolve('src/lib/firedata.json');
 
-    // Delete firedata.json if it exists
     try {
       await fs.unlink(fireDataFilePath);
-      console.log("lib/firedata.json has been deleted.");
+      console.log("lib/firedata.json has been deleted.")
     } catch (error) {
       if (error === 'ENOENT') {
         console.log("lib/firedata.json does not exist, skipping deletion.");

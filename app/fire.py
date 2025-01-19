@@ -132,5 +132,7 @@ async def fire(props: Props):
 
     return {
         "instructions": recommendation.instructions,
-        "routes": routes
+        "routes": routes,
+        "class_of_fire": recommendation.class_of_fire,
+        "instruction_paths": recommendation.instruction_paths
     }
