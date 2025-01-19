@@ -55,7 +55,7 @@ export async function load() {
         const fireDataFileData = await fs.readFile(fireDataFilePath, 'utf-8');
         const fireData = JSON.parse(fireDataFileData);
         instructions = fireData.instructions || [];
-        fireCoords = fireData.fireCoords
+        fireCoords = [height - fireData.fireCoords![0], fireData.fireCoords![1]]
         fireClass = fireData.class_of_fire
         fireClassDescription = fireData.fire_class_desc
         let rawRoutes = fireData.routes
