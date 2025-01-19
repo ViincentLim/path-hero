@@ -1,11 +1,11 @@
 <script lang="ts">
-	import Card from "$lib/components/Card.svelte";
-	import { onMount } from "svelte"
-	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator } from "leaflet"
-	import L from "leaflet"
-	import "leaflet/dist/leaflet.css"
-  	import { enhance } from "$app/forms"
-	import 'leaflet-polylinedecorator'
+    import Card from "$lib/components/Card.svelte";
+    import {onMount} from "svelte"
+    import type {LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator} from "leaflet"
+    import L from "leaflet"
+    import "leaflet/dist/leaflet.css"
+    import {enhance} from "$app/forms"
+    import 'leaflet-polylinedecorator'
 
 
     export let data: {
@@ -20,7 +20,8 @@
         instructions: string[],
         routes: LatLngExpression[][],
         name: string,
-	  description: string,}
+        description: string,
+    }
 
     // MAP STUFF
     let map: LeafletMap
@@ -260,11 +261,11 @@
             <!--        </button>-->
             <!--    {/if}-->
             <!--{/snippet}-->
-<!--            Moved the card to below the map-->
-<!--            <Card title="Instructions" ,-->
-<!--                  body={data.instructions[instructionIndex]}-->
-<!--                  footer={instructions_footer}-->
-<!--            />-->
+            <!--            Moved the card to below the map-->
+            <!--            <Card title="Instructions" ,-->
+            <!--                  body={data.instructions[instructionIndex]}-->
+            <!--                  footer={instructions_footer}-->
+            <!--            />-->
             <!--            <div class="card p-4 mb-0 h-80 w-full overflow-auto">-->
             <!--                <div class="flex justify-between items-start">-->
             <!--                    &lt;!&ndash;					<h1 class="text-3xl mb-3">Instructions</h1>&ndash;&gt;-->
@@ -280,22 +281,24 @@
         </div>
     </div>
 </div>
-<div class="justify-center w-[auto]" style="position:absolute;left: 18px; right: 18px; bottom: 20px;">
+<div class="justify-center w-[auto]" style="position:absolute;left: 18px; right: 18px; bottom: 20px; z-index: 1000; background: white;">
     <hr style="margin-bottom: 20px;">
     {#if data.instructions.length > 0}
-        <div style="margin-bottom: 12px; gap: 8px; display: inline-flex; flex-direction: column;">
+        <div style="margin-bottom: 12px; gap: 8px; display: inline-flex; flex-direction: column; padding-left: 20px; padding-right: 20px;">
             <p>Instructions</p>
-            <p style="font-size: 26px">Test</p>
-            {#if instructionIndex > 0}
-                <button class="bg-transparent text-black p-2" style="border-radius: 8px; border: 1px solid black;"
+            <p style="font-size: 26px">{data.instructions[instructionIndex]}</p>
+            <div class="h-1"></div>
+            <div style="display:inline-flex; flex-direction: row; gap: 14px;">
+                <button class="back-button bg-transparent text-black p-2"
+                        style="border-radius: 8px; border: 1px solid black; width: fit-content;" disabled={instructionIndex === 0}
                         onclick={()=> instructionIndex--}>Back
                 </button>
-            {/if}
-            {#if instructionIndex < data.instructions.length - 1}
-                <button class="bg-black text-white p-2" style="border-radius: 8px; border: 1px solid black;"
-                        onclick={()=> instructionIndex++}>Next
-                </button>
-            {/if}
+                <button class="next-button bg-black text-white p-2"
+                        style="border-radius: 8px; border: 1px solid black; width: fit-content;" disabled={instructionIndex >= data.instructions.length - 1}
+                            onclick={()=> instructionIndex++}>Next
+                    </button>
+            </div>
+            <div class="h-1"></div>
         </div>
     {/if}
     <div class="inline-flex w-[100%] gap-2" style="padding-left: 20px; padding-right: 20px;">
@@ -314,5 +317,9 @@
 <style>
     #map {
         background-color: white;
+    }
+
+    .next-button:disabled, .back-button:disabled {
+        background: lightgray;
     }
 </style>

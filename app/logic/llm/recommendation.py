@@ -59,22 +59,28 @@ async def recommend(image: cv2.typing.MatLike, fire_coordinate: tuple[int, int])
     Example (for this example, the fire is in drug store):
     // IMPORTANT: Explain the reasoning behind each step in detail (more detailed than my example if possible)
     instructions: [
-        "Send 2 people to evacuate the casualties in drug store.",
-        "Send 2 people concurrently to extinguish the fire with a foam extinguisher, if extinguisher runs out, leave the room.",
+        "Send 2 people to search for casualties in drug store.",
+        "Once they find the casualties, evacuate them to the nearest exit.",
+        "Send 2 people concurrently to extinguish the fire with a foam extinguisher.",
+        "If extinguisher runs out before putting out the fire, leave the room.",
         "Send 2 people to search the adjacent toilet for casualties, bringing the key to unlock the toilet cubicle.",
-        "Send 8 people to evacuate casualties in Room A, each bed in pairs, transferring them to wheelchairs and setting up mobile life-support apparatus to those under life-support.",
-        "Send 8 people to evacuate casualties in Room B, each bed in pairs, transferring them to wheelchairs and setting up mobile life-support apparatus to those under life-support.",
+        "If there are any casualties, evacuate them.",
+        "Send 8 people to search casualties in Room A, each bed in pairs, transferring them to wheelchairs and setting up mobile life-support apparatus to those under life-support.",
+        "Evacuate them to the nearest exit.",
         "Send 3 people to don up fire suits and breathing apparatus.",
         "Send those 3 people to set up hose to the fire location and attack the fire, replacing the previous firefighters with extinguishers.",
         "Send 2 people to set up hose to the fire location and do boundary cooling at the adjacent toilet on the wall adjacent to the drug store.",
     ]
     // Possible points for path: {POSSIBLE_POINTS} or the respective room name
     instruction_paths: [
-        ["exit", "extinguisher_foam", "Drug Store", "exit"],
-        ["exit", "extinguisher_foam", "Drug Store", "exit"],
-        ["exit", "Toilet", "exit"],
-        ["exit", "Room A", "exit"],
-        ["exit", "Room B", "exit"],
+        ["exit", "extinguisher_foam", "Drug Store"],
+        ["Drug Store", "exit"],
+        ["exit", "extinguisher_foam", "Drug Store"],
+        ["Drug Store", "exit"],
+        ["exit", "Toilet"],
+        ["Toilet", "exit"],
+        ["exit", "Room A"],
+        ["Room A", "exit"],
         [], // EMPTY list as no movement required for donning
         ["exit", "hosereel", "Drug Store"],
         ["exit", "hosereel", "Toilet"],
