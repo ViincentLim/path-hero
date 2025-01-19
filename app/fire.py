@@ -40,12 +40,13 @@ async def fire(props: Props):
     :param description: llm prompt to describe the fire
     :return:
     """
-    # globals.numpy_image
-    # globals.coordinates
-    # globals.grid
-    # Should be y, x
+    # globals.numpy_image, globals.coordinates, globals.grid
+    # Coordinates are expected in y,x order
     fire_coordinate: tuple[int, int] = (int(props.coordinates[0][0]), int(props.coordinates[0][1]))
+
+    # Get fire recommendation. Internally, the recommendation might include a class_of_fire value (e.g., "A", "B", ...)
     recommendation: FireRecommendations = await recommend(image=globals.numpy_image, fire_coordinate=fire_coordinate)
+
     routes: list[list[tuple[int, int]]] = []
     for instruction_path in recommendation.instruction_paths:
         # If the instruction_path has 1 or 0 elements, no actual path needed
@@ -55,7 +56,7 @@ async def fire(props: Props):
 
         accumulated_pixel_path: list[tuple[int, int]] = []
 
-        # build the route segment by segment, e.g.:
+        # Build the route segment by segment, e.g.:
         # if instruction_path == ["exit", "Toilet", "exit"]
         # segment 1 = ("exit", "Toilet"), segment 2 = ("Toilet", "exit")
         number_of_routes = len(instruction_path) - 1
@@ -130,9 +131,28 @@ async def fire(props: Props):
         merged_path = merge_lines_in_path(accumulated_pixel_path)
         routes.append(merged_path)
 
+    # Determine appropriate fire class description based on the fire recommendation
+    # You can adjust these messages as needed.
+    fire_class_desc = ""
+    if recommendation.class_of_fire == "A":
+        fire_class_desc = "Class A fire: Involving ordinary combustibles such as wood, paper, and cloth. Use water or foam extinguishers."
+    elif recommendation.class_of_fire == "B":
+        fire_class_desc = "Class B fire: Involving flammable liquids such as gasoline, oil, or paint. Use foam, dry chemical, or carbon dioxide extinguishers."
+    elif recommendation.class_of_fire == "C":
+        fire_class_desc = "Class C fire: Involving energized electrical equipment. Use non-conductive extinguishing agents like carbon dioxide or dry chemical."
+    elif recommendation.class_of_fire == "D":
+        fire_class_desc = "Class D fire: Involving combustible metals like magnesium or titanium. Use specialized dry powder extinguishers."
+    elif recommendation.class_of_fire == "E":
+        fire_class_desc = "Class E fire: (This class is sometimes used to denote fires involving electrical equipment. Verify local classifications.)"
+    elif recommendation.class_of_fire == "F":
+        fire_class_desc = "Class F fire: Involving cooking oils and fats, common in kitchen fires. Use wet chemical extinguishers."
+    else:
+        fire_class_desc = "Unknown fire class. Please consult a fire safety specialist."
+
     return {
         "instructions": recommendation.instructions,
         "routes": routes,
         "class_of_fire": recommendation.class_of_fire,
-        "instruction_paths": recommendation.instruction_paths
+        "instruction_paths": recommendation.instruction_paths,
+        "fire_class_desc": fire_class_desc
     }
