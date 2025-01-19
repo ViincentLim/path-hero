@@ -6,9 +6,10 @@ export const actions = {
  default: async ({ request }: { request: Request }) => {
    const formData = await request.formData();
    const name = formData.get("name")
+   const description = formData.get("description")
    const filename = formData.get("file")
    const requestBody = JSON.stringify({
-     description: name,
+     description: description,
      image_filename: filename
    })
    console.log(requestBody);
@@ -35,8 +36,13 @@ export const actions = {
    }
 
 
+
    const data = await response.json()
-   await saveResponseToFile(data, "floordata.json")
+   if (data !== null) {
+      data.name = name
+      data.description = description
+     await saveResponseToFile(data, "floordata.json")
+   } 
 
 
    redirect(303, "/")

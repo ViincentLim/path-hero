@@ -18,8 +18,8 @@ export async function load() {
   const floorDataFilePath = path.resolve('./src/lib/floordata.json')
   const fireDataFilePath = path.resolve('./src/lib/firedata.json')
 
-  let height, width, extinguisherPowder, extinguisherCo2, extinguisherFoam, hoseReel, exits;
-  let instructions = [], routes = [];
+  let height, width, extinguisherPowder, extinguisherCo2, extinguisherFoam, hoseReel, exits, name, description
+  let instructions = [], routes: number[][][] = [];
   let rooms: Room[] = []
 
     // FLOOR DATA
@@ -30,6 +30,8 @@ export async function load() {
         const icons = floorData.icons_midpoints;
         height = floorData.height;
         width = floorData.width;
+        name = floorData.name
+        description = floorData.description
 
         extinguisherPowder = transformCoordinates(icons.extinguisher_powder, height);
         extinguisherCo2 = transformCoordinates(icons.extinguisher_co2, height);
@@ -39,8 +41,7 @@ export async function load() {
 
         const roomRoutes = floorData.rooms;
         const roomCoords = floorData.rooms_midpoints
-       rooms = processRooms(roomCoords, roomRoutes)
-        console.log(roomRoutes)
+        rooms = processRooms(roomCoords, roomRoutes, height)
       } catch (err) {
         console.error(`Error reading or parsing floor data: ${err}`);
       }
@@ -53,9 +54,13 @@ export async function load() {
       try {
         const fireDataFileData = await fs.readFile(fireDataFilePath, 'utf-8');
         const fireData = JSON.parse(fireDataFileData);
-        const recommendations = fireData.recommendations;
-        instructions = recommendations.instructions || [];
-        routes = recommendations.routes || [];
+        instructions = fireData.instructions || [];
+        let rawRoutes = fireData.routes
+        for (let route of rawRoutes) {
+          let newRoute = transformCoordinates(route, height)
+          routes.push(newRoute)
+        }
+        console.log(routes)
       } catch (err) {
         console.error(`Error reading or parsing fire data: ${err}`);
       }
@@ -74,10 +79,12 @@ export async function load() {
       exits,
       instructions,
       routes,
+      name,
+      description
     };
   } 
 
-function transformCoordinates(coords: number[], imageHeight: number) {
+function transformCoordinates(coords: number[][], imageHeight: number): number[][] {
   if (!coords || !Array.isArray(coords)) {
     console.warn('Invalid or missing coordinates:', coords);
     return []
@@ -88,19 +95,18 @@ function transformCoordinates(coords: number[], imageHeight: number) {
 
 function processRooms(
   roomsMidpoints: Record<string, number[][]>, // Object containing room names as keys and midpoints as values
-    rooms: Record<string, any> // Object containing room names as keys and additional room data
+    rooms: Record<string, any>,
+    imageHeight: number
   ): Room[] {
   const roomRecords: Room[] = []
 
   for (const [roomName, midpoints] of Object.entries(roomsMidpoints)) {
-    const roomData = rooms.find((room) => room.name === roomName)
-    const coords = midpoints[0]; // Assuming the first element in the array is the coordinate
-    const route = rooms[roomName]?.route || []; // Get the route from the `rooms` object, or use an empty array if not found
+    const roomData = rooms.find((room: Room) => room.name === roomName)
 
     const room: Room = {
       name: roomName,
-      coords: midpoints[0], // Assuming the first element in midpoints is the coordinate
-      route: roomData?.route || [], // Get the route from the matching room, or default to an empty array
+      coords: [imageHeight - midpoints[0][0], midpoints[0][1]], // Assuming the first element in midpoints is the coordinate
+      route: transformCoordinates(roomData?.route, imageHeight) || [], // Get the route from the matching room, or default to an empty array
     };
 
       roomRecords.push(room);
@@ -132,9 +138,8 @@ export const actions = {
      coordinates: coordinates,
      description: description,
    })
-   console.log(requestBody)
 
-   const apiUrl = `http://localhost:8000/api/fire`
+   const apiUrl = `http://127.0.0.1:8000/api/fire`
   // Fetch data from the backend
    const response = await fetch(apiUrl, {
      method: "POST",
@@ -151,6 +156,6 @@ export const actions = {
 
 
    const data = await response.json()
-   await saveResponseToFile(data, "floordata.json")
+   await saveResponseToFile(data, "firedata.json")
  },
 }

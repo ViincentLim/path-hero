@@ -10,7 +10,7 @@
     } = $props()
 </script>
 
-<div class="card p-4 h-44 w-full">
+<div class="card p-4 w-full">
     <div class="flex w-full justify-between mb-5">
         <p>{ title }</p>
         {#if icon}

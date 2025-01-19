@@ -5,6 +5,7 @@ from pydantic import BaseModel
 import app.globals as globals
 from app.logic.llm.recommendation import recommend, FireRecommendations
 from app.logic.pathfind import get_path, heuristic_fire, a_star_pathfinding, pixel_to_grid, grid_to_pixel
+from app.logic.pathfind import get_path, heuristic_fire, a_star_pathfinding, pixel_to_grid, grid_to_pixel
 
 fire_router = APIRouter()
 
@@ -35,7 +36,6 @@ def merge_lines_in_path(path: list[tuple[int, int]]) -> list[tuple[int, int]]:
 @fire_router.post("/api/fire")
 async def fire(props: Props):
     """
-
     :param coordinates: list of fire coordinates in (x,y) format, with origin in the top left corner
     :param description: llm prompt to describe the fire
     :return:
