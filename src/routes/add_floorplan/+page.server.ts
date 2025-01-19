@@ -18,7 +18,7 @@ export const actions = {
      return { error: "All fields are required." };
    }
 
-   const apiUrl = `http://localhost:8000/api/floorplan`
+   const apiUrl = `http://127.0.0.1:8000/api/floorplan`
 
    // Fetch data from the backend
    const response = await fetch(apiUrl, {
