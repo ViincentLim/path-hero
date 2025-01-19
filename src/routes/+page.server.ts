@@ -39,8 +39,7 @@ export async function load() {
 
         const roomRoutes = floorData.rooms;
         const roomCoords = floorData.rooms_midpoints
-       rooms = processRooms(roomCoords, roomRoutes, height)
-        console.log(roomRoutes)
+        rooms = processRooms(roomCoords, roomRoutes, height)
       } catch (err) {
         console.error(`Error reading or parsing floor data: ${err}`);
       }
@@ -53,9 +52,8 @@ export async function load() {
       try {
         const fireDataFileData = await fs.readFile(fireDataFilePath, 'utf-8');
         const fireData = JSON.parse(fireDataFileData);
-        const recommendations = fireData.recommendations;
-        instructions = recommendations.instructions || [];
-        routes = recommendations.routes || [];
+        instructions = fireData.instructions || [];
+        routes = fireData.routes || [];
       } catch (err) {
         console.error(`Error reading or parsing fire data: ${err}`);
       }
@@ -99,7 +97,7 @@ function processRooms(
     const room: Room = {
       name: roomName,
       coords: [imageHeight - midpoints[0][0], midpoints[0][1]], // Assuming the first element in midpoints is the coordinate
-      route: roomData?.route || [], // Get the route from the matching room, or default to an empty array
+      route: transformCoordinates(roomData?.route, imageHeight) || [], // Get the route from the matching room, or default to an empty array
     };
 
       roomRecords.push(room);
@@ -131,7 +129,6 @@ export const actions = {
      coordinates: coordinates,
      description: description,
    })
-   console.log(requestBody)
 
    const apiUrl = `http://localhost:8000/api/fire`
   // Fetch data from the backend
