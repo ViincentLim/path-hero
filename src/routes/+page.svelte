@@ -245,8 +245,11 @@
             <div class="card p-4 h-44 w-full">
             </div>
             {#snippet instructions_footer()}
+                {#if instructionIndex > 0}
+                    <button class="bg-transparent text-black p-2" style="border-radius: 8px; border: 1px solid black;" onclick={()=> instructionIndex--}>Back</button>
+                {/if}
                 {#if instructionIndex < data.instructions.length - 1}
-                    <button onclick={()=> instructionIndex++}>Next</button>
+                    <button class="bg-black text-white p-2" style="border-radius: 8px; border: 1px solid black;" onclick={()=> instructionIndex++}>Next</button>
                 {/if}
             {/snippet}
             <Card title="Instructions" ,
