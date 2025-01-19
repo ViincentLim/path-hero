@@ -19,7 +19,7 @@ export async function load() {
   const fireDataFilePath = path.resolve('./src/lib/firedata.json')
 
   let height, width, extinguisherPowder, extinguisherCo2, extinguisherFoam, hoseReel, exits, name, description
-  let instructions = [], routes = [];
+  let instructions = [], routes: number[][][] = [];
   let rooms: Room[] = []
 
     // FLOOR DATA
@@ -55,7 +55,12 @@ export async function load() {
         const fireDataFileData = await fs.readFile(fireDataFilePath, 'utf-8');
         const fireData = JSON.parse(fireDataFileData);
         instructions = fireData.instructions || [];
-        routes = fireData.routes || [];
+        let rawRoutes = fireData.routes
+        for (let route of rawRoutes) {
+          let newRoute = transformCoordinates(route, height)
+          routes.push(newRoute)
+        }
+        console.log(routes)
       } catch (err) {
         console.error(`Error reading or parsing fire data: ${err}`);
       }
@@ -79,7 +84,7 @@ export async function load() {
     };
   } 
 
-function transformCoordinates(coords: number[], imageHeight: number) {
+function transformCoordinates(coords: number[][], imageHeight: number): number[][] {
   if (!coords || !Array.isArray(coords)) {
     console.warn('Invalid or missing coordinates:', coords);
     return []
@@ -134,7 +139,7 @@ export const actions = {
      description: description,
    })
 
-   const apiUrl = `http://localhost:8000/api/fire`
+   const apiUrl = `http://127.0.0.1:8000/api/fire`
   // Fetch data from the backend
    const response = await fetch(apiUrl, {
      method: "POST",
@@ -151,6 +156,6 @@ export const actions = {
 
 
    const data = await response.json()
-   await saveResponseToFile(data, "floordata.json")
+   await saveResponseToFile(data, "firedata.json")
  },
 }

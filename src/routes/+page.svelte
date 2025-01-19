@@ -5,7 +5,7 @@
 	import L from "leaflet"
 	import "leaflet/dist/leaflet.css"
   	import { enhance } from "$app/forms"
-	import 'leaflet-polylinedecorator';
+	import 'leaflet-polylinedecorator'
 
 	export let data: {
 	  height: number,
