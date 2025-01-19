@@ -9,4 +9,5 @@
     </div>
     <p class="text-2xl">{ body }</p>
     <p class="italic text-gray-400">{ subtitle }</p>
+    <!--{}-->
 </div>

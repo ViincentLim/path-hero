@@ -4,7 +4,7 @@ def init():
     global numpy_image
     global coordinates
     global grid
-    numpy_image = []
+    numpy_image = None
     coordinates = {}
     grid = None
 
