@@ -17,7 +17,9 @@
       exits: LatLngExpression[], 
       hoseReel: LatLngExpression[], 
 	  instructions: string[],
-	  routes: LatLngExpression[][]
+	  routes: LatLngExpression[][],
+	  name: string,
+	  description: string,
 	}
 		
 	// MAP STUFF
@@ -237,8 +239,8 @@
             <Card
                     {...{
                         title: "Floor Info",
-                        body: "Hospital Ward",
-                        subtitle: "Block A, Level 5",
+                        body: data.name,
+                        subtitle: data.description,
                         icon: "🗺️"
                     }}
             />
@@ -247,7 +249,7 @@
             {#snippet instructions_footer()}
                 <button>Next</button>
             {/snippet}
-            <Card title="Instructions" ,
+            <Card title="Instructions"
                   body={data.instructions[instructionIndex]}
                   footer={instructions_footer}
             />

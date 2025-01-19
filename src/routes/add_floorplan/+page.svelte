@@ -1,6 +1,7 @@
 <script lang="ts">
     let name: string
     let file: string
+    let description: string
   </script>
   
   <nav class="flex p-2 gap-4">
@@ -13,7 +14,10 @@
 <!--          <p class="flex items-center text-xl">-->
 <!--            Floor Name-->
 <!--          </p>-->
-          <input type="text" class="input w-[100%]" name="name" bind:value={name} placeholder="Floor Plan Information" required />
+          <input type="text" class="input w-[100%]" name="name" bind:value={name} placeholder="Location Name" required />
+        </label> 
+        <label class="w-full flex justify-between">
+          <input type="text" class="input w-[100%]" name="description" bind:value={description} placeholder="Floor Plan Information" required />
         </label> 
         
         <label class="w-full flex justify-between mb-4">
