@@ -5,7 +5,7 @@
 	import L from "leaflet"
 	import "leaflet/dist/leaflet.css"
   	import { enhance } from "$app/forms"
-	import('leaflet-polylinedecorator')
+	import 'leaflet-polylinedecorator';
 
 	export let data: {
 	  height: number,
@@ -122,7 +122,7 @@
   rooms.forEach((room) => {
     // Create a polyline for the room's route
     const polyline = L.polyline(room.route as LatLngExpression[], {
-      color: "blue",
+      color: "green",
       weight: 4,
       dashArray: "5, 10", // Optional: Dashed line style
     }).addTo(map);
@@ -136,7 +136,7 @@
           symbol: L.Symbol.arrowHead({
             pixelSize: 15,
             polygon: true,
-            pathOptions: { fillColor: "blue", fillOpacity: 1, stroke: true, weight: 1 },
+            pathOptions: { fillColor: "green", fillOpacity: 1, stroke: true, weight: 1 },
           }),
         },
       ],
@@ -244,21 +244,25 @@
             />
             <div class="card p-4 h-44 w-full">
             </div>
+            {#snippet instructions_footer()}
+                <button>Next</button>
+            {/snippet}
             <Card title="Instructions" ,
                   body={data.instructions[instructionIndex]}
+                  footer={instructions_footer}
             />
-            <div class="card p-4 mb-0 h-80 w-full overflow-auto">
-                <div class="flex justify-between items-start">
-                    <!--					<h1 class="text-3xl mb-3">Instructions</h1>-->
-                    <p>Instructions</p>
-                    {#if instructionIndex < data.instructions.length - 1}
-                        <button class="text-2xl underline" onclick={()=> instructionIndex++}>&#9758;</button>
-                    {:else}
-                        <button class="text-2xl underline" onclick={()=> instructionIndex--}>&#9756;</button>
-                    {/if}
-                </div>
-                <p>{data.instructions[instructionIndex]}</p>
-            </div>
+<!--            <div class="card p-4 mb-0 h-80 w-full overflow-auto">-->
+<!--                <div class="flex justify-between items-start">-->
+<!--                    &lt;!&ndash;					<h1 class="text-3xl mb-3">Instructions</h1>&ndash;&gt;-->
+<!--                    <p>Instructions</p>-->
+<!--                    {#if instructionIndex < data.instructions.length - 1}-->
+<!--                        <button class="text-2xl underline" onclick={()=> instructionIndex++}>&#9758;</button>-->
+<!--                    {:else}-->
+<!--                        <button class="text-2xl underline" onclick={()=> instructionIndex&#45;&#45;}>&#9756;</button>-->
+<!--                    {/if}-->
+<!--                </div>-->
+<!--                <p>{data.instructions[instructionIndex]}</p>-->
+<!--            </div>-->
         </div>
     </div>
 </div>
