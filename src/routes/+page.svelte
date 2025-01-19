@@ -285,7 +285,7 @@
     {#if data.instructions.length > 0}
         <div style="margin-bottom: 12px; gap: 8px; display: inline-flex; flex-direction: column;">
             <p>Instructions</p>
-            <p style="font-size: 26px">Test</p>
+            <p style="font-size: 26px">{data.instructions[instructionIndex]}</p>
             {#if instructionIndex > 0}
                 <button class="bg-transparent text-black p-2" style="border-radius: 8px; border: 1px solid black;"
                         onclick={()=> instructionIndex--}>Back
