@@ -1,98 +1,101 @@
 <script lang="ts">
-	import Card from "$lib/components/Card.svelte";
-	import { onMount } from "svelte"
-	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator } from "leaflet"
-	import L from "leaflet"
-	import "leaflet/dist/leaflet.css"
-  	import { enhance } from "$app/forms"
-	import('leaflet-polylinedecorator')
+    import Card from "$lib/components/Card.svelte";
+    import {onMount} from "svelte"
+    import type {LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator} from "leaflet"
+    import L from "leaflet"
+    import "leaflet/dist/leaflet.css"
+    import {enhance} from "$app/forms"
 
-	export let data: {
-	  height: number,
-      width: number,
-      rooms: Room[],
-      extinguisherPowder: LatLngExpression[],
-      extinguisherCo2: LatLngExpression[],
-      extinguisherFoam: LatLngExpression[],
-      exits: LatLngExpression[], 
-      hoseReel: LatLngExpression[], 
-	  instructions: string[],
-	  routes: LatLngExpression[][]
-	}
-		
-	// MAP STUFF
-	let map: LeafletMap
-	const displayHeight = 700
-	const imageHeight = data.height
-	const imageWidth = data.width
-	const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
-	const center: LatLngExpression = [
-		imageHeight / 2,
-		imageWidth / 2,
-	]
-	const minZoom = Math.log2(displayHeight / imageHeight);
-	
-	//FIRE
-	let placingFire = false
-	let fireIcon: any
-	let fireXCoords: string = ""
-	let fireYCoords: string = ""
-	let fireDescription: string
-	let fireMarkers: L.Marker[] = []
-	function startFire() {
-		placingFire = true
-	}
+    import('leaflet-polylinedecorator')
+
+    export let data: {
+        height: number,
+        width: number,
+        rooms: Room[],
+        extinguisherPowder: LatLngExpression[],
+        extinguisherCo2: LatLngExpression[],
+        extinguisherFoam: LatLngExpression[],
+        exits: LatLngExpression[],
+        hoseReel: LatLngExpression[],
+        instructions: string[],
+        routes: LatLngExpression[][]
+    }
+
+    // MAP STUFF
+    let map: LeafletMap
+    const displayHeight = 700
+    const imageHeight = data.height
+    const imageWidth = data.width
+    const bounds: LatLngBoundsExpression = [[0, 0], [imageHeight, imageWidth]]
+    const center: LatLngExpression = [
+        imageHeight / 2,
+        imageWidth / 2,
+    ]
+    const minZoom = Math.log2(displayHeight / imageHeight);
+
+    //FIRE
+    let placingFire = false
+    let fireIcon: any
+    let fireXCoords: string = ""
+    let fireYCoords: string = ""
+    let fireDescription: string
+    let fireMarkers: L.Marker[] = []
+
+    function startFire() {
+        placingFire = true
+    }
 
 
-	// PATH
-	let instructionIndex = 0
-	let polyline: L.Polyline
-	let decorator: PolylineDecorator
-	$: latlngs = data.routes[instructionIndex]
-	function initializeMap() {
-		map = L.map("map", {
-		crs: L.CRS.Simple,
-		zoomControl: true,
-		dragging: true,
-		}).setView(center, minZoom)
+    // PATH
+    let instructionIndex = 0
+    let polyline: L.Polyline
+    let decorator: PolylineDecorator
+    $: latlngs = data.routes[instructionIndex]
 
-		map.setMaxBounds(bounds);
-		map.options.maxZoom = 2;
-		map.options.minZoom = minZoom;
-		map.fitBounds(bounds)
+    function initializeMap() {
+        map = L.map("map", {
+            crs: L.CRS.Simple,
+            zoomControl: true,
+            dragging: true,
+        }).setView(center, minZoom)
 
-		fireIcon = L.divIcon({
-		html: '<div class="text-red-500 text-6xl">🔥</div>',
-		iconSize: [0, 0],
-		iconAnchor: [40, 40],
-		})
+        map.setMaxBounds(bounds);
+        map.options.maxZoom = 2;
+        map.options.minZoom = minZoom;
+        map.fitBounds(bounds)
+
+        fireIcon = L.divIcon({
+            html: '<div class="text-red-500 text-6xl">🔥</div>',
+            iconSize: [0, 0],
+            iconAnchor: [40, 40],
+        })
 
         L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
 
         setupMapClickHandler()
 
-		for (let exit of data.exits) {
-			createMarkerWithTooltip(exit, "This is an exit");
-		}
-		for (let extinguisher of data.extinguisherFoam) {
-			createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
-		}
-		for (let extinguisher of data.extinguisherFoam) {
-			createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
-		}
-		for (let extinguisher of data.extinguisherCo2) {
-			createMarkerWithTooltip(extinguisher, "This is a CO2 extinguisher");
-		}
-		for (let extinguisher of data.extinguisherPowder) {
-			createMarkerWithTooltip(extinguisher, "This is a powder extinguisher");
-		}
-		for (let hose of data.hoseReel) {
-			createMarkerWithTooltip(hose, "This is a hose reel");
-		}
-		for (let room of data.rooms) {
-			createMarkerWithTooltip(room.coords, "This is a room");
-		}
-	}
+        for (let exit of data.exits) {
+            createMarkerWithTooltip(exit, "This is an exit");
+        }
+        for (let extinguisher of data.extinguisherFoam) {
+            createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
+        }
+        for (let extinguisher of data.extinguisherFoam) {
+            createMarkerWithTooltip(extinguisher, "This is a foam extinguisher");
+        }
+        for (let extinguisher of data.extinguisherCo2) {
+            createMarkerWithTooltip(extinguisher, "This is a CO2 extinguisher");
+        }
+        for (let extinguisher of data.extinguisherPowder) {
+            createMarkerWithTooltip(extinguisher, "This is a powder extinguisher");
+        }
+        for (let hose of data.hoseReel) {
+            createMarkerWithTooltip(hose, "This is a hose reel");
+        }
+        for (let room of data.rooms) {
+            createMarkerWithTooltip(room.coords, "This is a room");
+        }
+    }
 
     $: {
         if (map) {
@@ -177,39 +180,34 @@
             </div>
         </div>
 
-		<div class="flex flex-col gap-4 w-1/6">
-			<Card
-				{...{
-					title: "Floor Info",
-					body: "Hospital Ward",
-					subtitle: "Block A, Level 5",
-					icon: "🗺️"
-				}}
-			/>
-			<div class="card p-4 h-44 w-full">
-			</div>
-			<Card
-				{...{
-					title: "Instructions",
-					body: data.instructions[instructionIndex],
-					subtitle: "Block A, Level 5",
-					icon: "🗺️"
-				}}
-			/>
-			<div class="card p-4 mb-0 h-80 w-full overflow-auto">
-				<div class="flex justify-between items-start">
-<!--					<h1 class="text-3xl mb-3">Instructions</h1>-->
-					<p>Instructions</p>
-					{#if instructionIndex < data.instructions.length-1}
-					<button class="text-2xl underline" onclick={()=> instructionIndex++}>&#9758;</button>
-					{:else}
-					<button class="text-2xl underline" onclick={()=> instructionIndex--}>&#9756;</button>
-					{/if}
-				</div>
-				<p>{data.instructions[instructionIndex]}</p>
-			</div>
-		</div>
-	</div>
+        <div class="flex flex-col gap-4 w-1/6">
+            <Card
+                    {...{
+                        title: "Floor Info",
+                        body: "Hospital Ward",
+                        subtitle: "Block A, Level 5",
+                        icon: "🗺️"
+                    }}
+            />
+            <div class="card p-4 h-44 w-full">
+            </div>
+            <Card title="Instructions" ,
+                  body={data.instructions[instructionIndex]}
+            />
+            <div class="card p-4 mb-0 h-80 w-full overflow-auto">
+                <div class="flex justify-between items-start">
+                    <!--					<h1 class="text-3xl mb-3">Instructions</h1>-->
+                    <p>Instructions</p>
+                    {#if instructionIndex < data.instructions.length - 1}
+                        <button class="text-2xl underline" onclick={()=> instructionIndex++}>&#9758;</button>
+                    {:else}
+                        <button class="text-2xl underline" onclick={()=> instructionIndex--}>&#9756;</button>
+                    {/if}
+                </div>
+                <p>{data.instructions[instructionIndex]}</p>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="w-full h-10 mr-10   flex justify-center ">
     <div class="w-3/4 text-center flex justify-end">
