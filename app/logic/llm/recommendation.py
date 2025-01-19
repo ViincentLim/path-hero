@@ -89,6 +89,7 @@ async def recommend(image: cv2.typing.MatLike, fire_coordinate: tuple[int, int])
     
     Recommendation:
     - Rescue First: Prioritize occupant rescue. Medical staff should prepare non-ambulant patients with wheelchairs or mobile life support if needed
+    - Put out the fire with extinguisher in the location of the fire first.
     - Pick the extinguisher or hosereel first before entering room
     - In a room with electrical appliances, isolate power first
     - When people who aren't already on the floor enter the floor, starting point is an exit

@@ -149,10 +149,20 @@ async def fire(props: Props):
     else:
         fire_class_desc = "Unknown fire class. Please consult a fire safety specialist."
 
+    print({
+        "instructions": recommendation.instructions,
+        "routes": routes,
+        "class_of_fire": recommendation.class_of_fire,
+        "object_on_fire": recommendation.object_on_fire,
+        "fire_location": recommendation.fire_location,
+        "instruction_paths": recommendation.instruction_paths
+    })
     return {
         "instructions": recommendation.instructions,
         "routes": routes,
         "class_of_fire": recommendation.class_of_fire,
+        "object_on_fire": recommendation.object_on_fire,
+        "fire_location": recommendation.fire_location,
         "instruction_paths": recommendation.instruction_paths,
         "fire_class_desc": fire_class_desc
     }

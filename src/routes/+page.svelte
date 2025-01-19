@@ -1,10 +1,10 @@
 <script lang="ts">
-	import Card from "$lib/components/Card.svelte";
-	import { onMount } from "svelte"
-	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator } from "leaflet"
-	import L from "leaflet"
-	import "leaflet/dist/leaflet.css"
-	import 'leaflet-polylinedecorator'
+    import Card from "$lib/components/Card.svelte";
+    import {onMount} from "svelte"
+    import type {LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator} from "leaflet"
+    import L from "leaflet"
+    import "leaflet/dist/leaflet.css"
+    import 'leaflet-polylinedecorator'
 
 
     export let data: {
@@ -20,7 +20,7 @@
         routes: LatLngExpression[][],
         name: string,
         description: string,
-		fileName: string,
+        fileName: string,
     }
 
     // MAP STUFF
@@ -273,7 +273,8 @@
         </div>
     </div>
 </div>
-<div class="justify-center w-[auto]" style="position:absolute;left: 18px; right: 18px; bottom: 20px; z-index: 1000; background: white;">
+<div class="justify-center w-[auto]"
+     style="position:absolute;left: 18px; right: 18px; bottom: 20px; z-index: 1000; background: white;">
     <hr style="margin-bottom: 20px;">
     {#if data.instructions.length > 0}
         <div style="margin-bottom: 12px; gap: 8px; display: inline-flex; flex-direction: column; padding-left: 20px; padding-right: 20px;">
@@ -282,26 +283,29 @@
             <div class="h-1"></div>
             <div style="display:inline-flex; flex-direction: row; gap: 14px;">
                 <button class="back-button bg-transparent text-black p-2"
-                        style="border-radius: 8px; border: 1px solid black; width: fit-content;" disabled={instructionIndex === 0}
+                        style="border-radius: 8px; border: 1px solid black; width: fit-content;"
+                        disabled={instructionIndex === 0}
                         onclick={()=> instructionIndex--}>Back
                 </button>
                 <button class="next-button bg-black text-white p-2"
-                        style="border-radius: 8px; border: 1px solid black; width: fit-content;" disabled={instructionIndex >= data.instructions.length - 1}
-                            onclick={()=> instructionIndex++}>Next
-                    </button>
+                        style="border-radius: 8px; border: 1px solid black; width: fit-content;"
+                        disabled={instructionIndex >= data.instructions.length - 1}
+                        onclick={()=> instructionIndex++}>Next
+                </button>
             </div>
             <div class="h-1"></div>
         </div>
     {/if}
     <div class="inline-flex w-[100%] gap-2" style="padding-left: 20px; padding-right: 20px;">
-        <form method="post" class="items-start w-[100%] gap-6"
+        <button class="text-5xl text-align-top h-10" onclick={startFire}>🔥</button>
+        <form method="post" class="items-start w-[100%] gap-6" style="display: inline-flex; flex-direction: row;"
               onsubmit={handleSubmit}>
             <input type="hidden" name="x" bind:value={fireXCoords}>
             <input type="hidden" name="y" bind:value={fireYCoords}>
             <input type="text" class="input text-lg w-full text-center" name="description" bind:value={fireDescription}
                    placeholder="Eg. It is an electrical fire with casualties including one burned and inhaling smoke.">
+            <input type="submit" style="height: 100%; background: black; color: white; border-radius: 8px; padding-left: 8px; padding-right: 8px; cursor: pointer;">
         </form>
-        <button class="text-5xl text-align-top h-10" onclick={startFire}>🔥</button>
     </div>
 </div>
 
