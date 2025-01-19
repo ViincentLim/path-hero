@@ -270,6 +270,7 @@ async def floorplan(props: Props) -> JSONResponse:
             x_mid = int((bbox[1] + bbox[3]) // 2)
             # Call get_path with (y, x)
             cost, route = get_path(img, (y_mid, x_mid), exit_midpoints, grid_size, False)
+            print('cost:', cost)
             # Convert route coordinates into native ints
             route_converted = [[int(point[0]), int(point[1])] for point in route]
             final['rooms'].append({

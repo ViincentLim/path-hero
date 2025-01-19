@@ -171,6 +171,12 @@
 		<div class="h-screen">
 			<a href="/add_floorplan">&#10094;</a>
 		</div>
+
+		<div class="w-3/4 overflow-hidden">
+			<div id="map" style="height: {displayHeight}px">
+			</div>
+		</div>
+
 		<div class="flex flex-col gap-4 w-1/6">
 			<Card
 				{...{
@@ -182,9 +188,18 @@
 			/>
 			<div class="card p-4 h-44 w-full">
 			</div>
+			<Card
+				{...{
+					title: "Instructions",
+					body: data.instructions[instructionIndex],
+					subtitle: "Block A, Level 5",
+					icon: "🗺️"
+				}}
+			/>
 			<div class="card p-4 mb-0 h-80 w-full overflow-auto">
 				<div class="flex justify-between items-start">
-					<h1 class="text-3xl mb-3">Instructions</h1>
+<!--					<h1 class="text-3xl mb-3">Instructions</h1>-->
+					<p>Instructions</p>
 					{#if instructionIndex < data.instructions.length-1}
 					<button class="text-2xl underline" onclick={()=> instructionIndex++}>&#9758;</button>
 					{:else}
@@ -192,11 +207,6 @@
 					{/if}
 				</div>
 				<p>{data.instructions[instructionIndex]}</p>
-			</div>
-		</div>
-
-		<div class="w-3/4 overflow-hidden">
-			<div id="map" style="height: {displayHeight}px">
 			</div>
 		</div>
 	</div>

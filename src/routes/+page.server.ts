@@ -2,7 +2,8 @@ import { saveResponseToFile } from '$lib/utils/saveResponse'
 import { readFile } from 'fs/promises'
 // @ts-ignore
 import path from 'path'
-import { promises as fs } from 'fs';
+
+import fs from 'fs/promises'
 
 async function fileExists(filePath: string) {
   try {
