@@ -39,7 +39,7 @@ export async function load() {
 
         const roomRoutes = floorData.rooms;
         const roomCoords = floorData.rooms_midpoints
-       rooms = processRooms(roomCoords, roomRoutes)
+       rooms = processRooms(roomCoords, roomRoutes, height)
         console.log(roomRoutes)
       } catch (err) {
         console.error(`Error reading or parsing floor data: ${err}`);
@@ -88,18 +88,17 @@ function transformCoordinates(coords: number[], imageHeight: number) {
 
 function processRooms(
   roomsMidpoints: Record<string, number[][]>, // Object containing room names as keys and midpoints as values
-    rooms: Record<string, any> // Object containing room names as keys and additional room data
+    rooms: Record<string, any>,
+    imageHeight: number
   ): Room[] {
   const roomRecords: Room[] = []
 
   for (const [roomName, midpoints] of Object.entries(roomsMidpoints)) {
-    const roomData = rooms.find((room) => room.name === roomName)
-    const coords = midpoints[0]; // Assuming the first element in the array is the coordinate
-    const route = rooms[roomName]?.route || []; // Get the route from the `rooms` object, or use an empty array if not found
+    const roomData = rooms.find((room: Room) => room.name === roomName)
 
     const room: Room = {
       name: roomName,
-      coords: midpoints[0], // Assuming the first element in midpoints is the coordinate
+      coords: [imageHeight - midpoints[0][0], midpoints[0][1]], // Assuming the first element in midpoints is the coordinate
       route: roomData?.route || [], // Get the route from the matching room, or default to an empty array
     };
 

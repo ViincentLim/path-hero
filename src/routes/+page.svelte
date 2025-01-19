@@ -90,7 +90,7 @@
 			createMarkerWithTooltip(hose, "This is a hose reel");
 		}
 		for (let room of data.rooms) {
-			createMarkerWithTooltip(room.coords, "This is a room");
+			createMarkerWithTooltip(room.coords as LatLngExpression, `This is ${room.name}`);
 		}
 	}
 
