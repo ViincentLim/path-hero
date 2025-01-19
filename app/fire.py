@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 import app.globals as globals
 from app.logic.llm.recommendation import recommend, FireRecommendations
-from app.logic.pathfind import get_path, heuristic_fire, a_star_pathfinding, pixel_to_grid
+from app.logic.pathfind import get_path, heuristic_fire, a_star_pathfinding, pixel_to_grid, grid_to_pixel
 
 fire_router = APIRouter()
 
@@ -75,7 +75,7 @@ async def fire(props: Props):
                                                             pixel_to_grid(possible_start_tuple, grid_size=10),
                                                             [pixel_to_grid(possible_end_tuple, grid_size=10)],
                                                             heuristic=True, fire_coords=[fire_coordinate])
-                routes[-1].extend(merge_lines_in_path(optimal_path))
+                routes[-1].extend([grid_to_pixel(coord, grid_size=10) for coord in merge_lines_in_path(optimal_path)])
                 # HACK END
 
                 # TODO: fill all possible start and end
