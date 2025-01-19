@@ -89,9 +89,9 @@
 		for (let hose of data.hoseReel) {
 			createMarkerWithTooltip(hose, "This is a hose reel");
 		}
-		for (let room of data.rooms) {
-			createMarkerWithTooltip(room.coords as LatLngExpression, `This is ${room.name}`);
-		}
+		// for (let room of data.rooms) {
+		// 	createMarkerWithTooltip(room.coords as LatLngExpression, `This is ${room.name}`);
+		// }
 		initializeRoomPolylines(data.rooms, map)
 	}
 
@@ -128,23 +128,23 @@
     }).addTo(map);
 
     // Add an arrowhead to the polyline using the Leaflet.PolylineDecorator plugin
-    const arrowHead = L.polylineDecorator(polyline, {
-      patterns: [
-        {
-          offset: "100%", // Arrow at the end
-          repeat: 0, // No repetition
-          symbol: L.Symbol.arrowHead({
-            pixelSize: 15,
-            polygon: true,
-            pathOptions: { fillColor: "green", fillOpacity: 1, stroke: true, weight: 1 },
-          }),
-        },
-      ],
-    }).addTo(map);
+    // const arrowHead = L.polylineDecorator(polyline, {
+    //   patterns: [
+    //     {
+    //       offset: "100%", // Arrow at the end
+    //       repeat: 0, // No repetition
+    //       symbol: L.Symbol.arrowHead({
+    //         pixelSize: 15,
+    //         polygon: true,
+    //         pathOptions: { fillColor: "green", fillOpacity: 1, stroke: true, weight: 1 },
+    //       }),
+    //     },
+    //   ],
+    // }).addTo(map);
 
     // Hide the polyline and arrowhead by default
     polyline.setStyle({ opacity: 0 });
-    arrowHead.setStyle({ opacity: 0 });
+    // arrowHead.setStyle({ opacity: 0 });
 
     // Create a marker for the room at its coordinates
     const marker = L.circleMarker(room.coords as LatLngExpression, {
@@ -157,20 +157,20 @@
     // On hover, show the polyline and arrowhead
     marker.on("mouseover", () => {
       polyline.setStyle({ opacity: 1 });
-      arrowHead.setStyle({ opacity: 1 });
+      // arrowHead.setStyle({ opacity: 1 });
     });
 
     // On mouseout, hide the polyline and arrowhead
     marker.on("mouseout", () => {
       polyline.setStyle({ opacity: 0 });
-      arrowHead.setStyle({ opacity: 0 });
+      // arrowHead.setStyle({ opacity: 0 });
     });
 
     // Optionally bind a tooltip to the marker
-    marker.bindTooltip(room.name, {
-      permanent: false,
-      direction: "top",
-    });
+    // marker.bindTooltip(room.name, {
+    //   permanent: false,
+    //   direction: "top",
+    // });
   });
 }
 
