@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Card from "$lib/components/Card.svelte";
 	import { onMount } from "svelte"
-	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator } from "leaflet"
+	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator, LatLngBounds } from "leaflet"
 	import L from "leaflet"
 	import "leaflet/dist/leaflet.css"
 	import 'leaflet-polylinedecorator'
@@ -21,6 +21,9 @@
         name: string,
         description: string,
 		fileName: string,
+		fireCoords: number[],
+		fireClass: string,
+		fireClassDescription: string,
     }
 
     // MAP STUFF
@@ -94,10 +97,10 @@
         for (let hose of data.hoseReel) {
             createMarkerWithTooltip(hose, "This is a hose reel");
         }
-        // for (let room of data.rooms) {
-        // 	createMarkerWithTooltip(room.coords as LatLngExpression, `This is ${room.name}`);
-        // }
+
         initializeRoomPolylines(data.rooms, map)
+
+		L.marker(data.fireCoords as LatLngExpression, {icon: fireIcon}).addTo(map)
     }
 
     $: {
@@ -131,21 +134,6 @@
                 weight: 4,
                 dashArray: "5, 10", // Optional: Dashed line style
             }).addTo(map);
-
-            // Add an arrowhead to the polyline using the Leaflet.PolylineDecorator plugin
-            // const arrowHead = L.polylineDecorator(polyline, {
-            //   patterns: [
-            //     {
-            //       offset: "100%", // Arrow at the end
-            //       repeat: 0, // No repetition
-            //       symbol: L.Symbol.arrowHead({
-            //         pixelSize: 15,
-            //         polygon: true,
-            //         pathOptions: { fillColor: "green", fillOpacity: 1, stroke: true, weight: 1 },
-            //       }),
-            //     },
-            //   ],
-            // }).addTo(map);
 
             // Hide the polyline and arrowhead by default
             polyline.setStyle({opacity: 0});
@@ -239,37 +227,14 @@
                         icon: "🗺️"
                     }}
             />
-            <div class="card p-4 h-44 w-full">
-            </div>
-            <!--{#snippet instructions_footer()}-->
-            <!--    {#if instructionIndex > 0}-->
-            <!--        <button class="bg-transparent text-black p-2" style="border-radius: 8px; border: 1px solid black;"-->
-            <!--                onclick={()=> instructionIndex&#45;&#45;}>Back-->
-            <!--        </button>-->
-            <!--    {/if}-->
-            <!--    {#if instructionIndex < data.instructions.length - 1}-->
-            <!--        <button class="bg-black text-white p-2" style="border-radius: 8px; border: 1px solid black;"-->
-            <!--                onclick={()=> instructionIndex++}>Next-->
-            <!--        </button>-->
-            <!--    {/if}-->
-            <!--{/snippet}-->
-            <!--            Moved the card to below the map-->
-            <!--            <Card title="Instructions" ,-->
-            <!--                  body={data.instructions[instructionIndex]}-->
-            <!--                  footer={instructions_footer}-->
-            <!--            />-->
-            <!--            <div class="card p-4 mb-0 h-80 w-full overflow-auto">-->
-            <!--                <div class="flex justify-between items-start">-->
-            <!--                    &lt;!&ndash;					<h1 class="text-3xl mb-3">Instructions</h1>&ndash;&gt;-->
-            <!--                    <p>Instructions</p>-->
-            <!--                    {#if instructionIndex < data.instructions.length - 1}-->
-            <!--                        <button class="text-2xl underline" onclick={()=> instructionIndex++}>&#9758;</button>-->
-            <!--                    {:else}-->
-            <!--                        <button class="text-2xl underline" onclick={()=> instructionIndex&#45;&#45;}>&#9756;</button>-->
-            <!--                    {/if}-->
-            <!--                </div>-->
-            <!--                <p>{data.instructions[instructionIndex]}</p>-->
-            <!--            </div>-->
+			<Card
+                    {...{
+                        title: "Class of Fire",
+                        body: data.fireClass,
+                        subtitle: data.fireClassDescription,
+                        icon: "⚠️"
+                    }}
+            />
         </div>
     </div>
 </div>

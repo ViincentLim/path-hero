@@ -17,7 +17,7 @@ export async function load() {
   const floorDataFilePath = path.resolve('./src/lib/floordata.json')
   const fireDataFilePath = path.resolve('./src/lib/firedata.json')
 
-  let height, width, extinguisherPowder, extinguisherCo2, extinguisherFoam, hoseReel, exits, name, description, fileName
+  let height, width, extinguisherPowder, extinguisherCo2, extinguisherFoam, hoseReel, exits, name, description, fileName, fireCoords, fireClass, fireClassDescription
   let instructions = [], routes: number[][][] = [];
   let rooms: Room[] = []
 
@@ -55,6 +55,9 @@ export async function load() {
         const fireDataFileData = await fs.readFile(fireDataFilePath, 'utf-8');
         const fireData = JSON.parse(fireDataFileData);
         instructions = fireData.instructions || [];
+        fireCoords = fireData.fireCoords
+        fireClass = fireData.class_of_fire
+        fireClassDescription = fireData.fire_class_desc
         let rawRoutes = fireData.routes
         for (let route of rawRoutes) {
           let newRoute = transformCoordinates(route, height)
@@ -80,7 +83,10 @@ export async function load() {
       routes,
       name,
       description,
-      fileName
+      fileName,
+      fireCoords,
+      fireClass,
+      fireClassDescription,
     };
   } 
 
@@ -125,7 +131,7 @@ export const actions = {
    const yArr = (y! as string).split(",")
    const coordinates = []
    for (let i = 0; i < xArr.length-1; i++) {
-    coordinates.push([Number(xArr[i]), Number(yArr[i])])
+    coordinates.push([Number(yArr[i]), Number(xArr[i])])
    }
 
    // Validate inputs
@@ -158,6 +164,5 @@ export const actions = {
    const data = await response.json()
    data.fireCoords = coordinates[0]
    await saveResponseToFile(data, "firedata.json")
-   load()
  },
 }
