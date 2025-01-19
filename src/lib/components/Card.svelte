@@ -6,7 +6,7 @@
         body: string,
         subtitle?: string,
         icon?: string
-        footer: Snippet,
+        footer?: Snippet,
     } = $props()
 </script>
 
