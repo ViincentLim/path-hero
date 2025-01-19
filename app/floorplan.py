@@ -211,6 +211,7 @@ async def floorplan(props: Props) -> JSONResponse:
         "width": width
     }
     globals.coordinates = response
+    print("coordinates", globals.coordinates)
 
     # Pathfinding initialization
     img = globals.numpy_image
