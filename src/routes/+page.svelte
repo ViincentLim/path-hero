@@ -284,10 +284,10 @@
 <div class="justify-center w-[auto]" style="position:absolute;left: 18px; right: 18px; bottom: 20px; z-index: 1000; background: white;">
     <hr style="margin-bottom: 20px;">
     {#if data.instructions.length > 0}
-        <div style="margin-bottom: 12px; gap: 8px; display: inline-flex; flex-direction: column;">
+        <div style="margin-bottom: 12px; gap: 8px; display: inline-flex; flex-direction: column; padding-left: 20px; padding-right: 20px;">
             <p>Instructions</p>
             <p style="font-size: 26px">{data.instructions[instructionIndex]}</p>
-            <br>
+            <div class="h-1"></div>
             <div style="display:inline-flex; flex-direction: row; gap: 14px;">
                 <button class="back-button bg-transparent text-black p-2"
                         style="border-radius: 8px; border: 1px solid black; width: fit-content;" disabled={instructionIndex === 0}
@@ -298,6 +298,7 @@
                             onclick={()=> instructionIndex++}>Next
                     </button>
             </div>
+            <div class="h-1"></div>
         </div>
     {/if}
     <div class="inline-flex w-[100%] gap-2" style="padding-left: 20px; padding-right: 20px;">
