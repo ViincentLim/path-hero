@@ -103,6 +103,9 @@ def a_star_pathfinding(
     """
     rows, cols = len(grid), len(grid[0])
 
+    if fire_coords:
+        grid = mark_fire_zones(grid, fire_coords, fire_proximity_threshold=150, fire_size="s", grid_size=10)
+
     def is_within_bounds(coord):
         x, y = coord
         return 0 <= x < rows and 0 <= y < cols
