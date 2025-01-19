@@ -1,5 +1,8 @@
 import { saveResponseToFile } from '$lib/utils/saveResponse'
-import { redirect } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit'
+import fs from 'fs/promises'
+// @ts-ignore
+import path from 'path'
 
 
 export const actions = {
@@ -41,8 +44,22 @@ export const actions = {
    if (data !== null) {
       data.name = name
       data.description = description
+      data.fileName = filename
      await saveResponseToFile(data, "floordata.json")
    } 
+
+   const fireDataFilePath = path.resolve('src/lib/firedata.json');
+
+    try {
+      await fs.unlink(fireDataFilePath);
+      console.log("lib/firedata.json has been deleted.")
+    } catch (error) {
+      if (error === 'ENOENT') {
+        console.log("lib/firedata.json does not exist, skipping deletion.");
+      } else {
+        console.error("An error occurred while trying to delete lib/firedata.json:", error);
+      }
+    }
 
 
    redirect(303, "/")

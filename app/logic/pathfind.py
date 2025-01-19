@@ -103,6 +103,9 @@ def a_star_pathfinding(
     """
     rows, cols = len(grid), len(grid[0])
 
+    if fire_coords:
+        grid = mark_fire_zones(grid, fire_coords, fire_proximity_threshold=300, fire_size="s", grid_size=10)
+
     def is_within_bounds(coord):
         x, y = coord
         return 0 <= x < rows and 0 <= y < cols
@@ -126,13 +129,14 @@ def a_star_pathfinding(
 
         # Check if the current node is one of the goals
         if current in goals:
+            distance = g_score[current]
             # Reconstruct path
             path = []
             while current in came_from:
                 path.append(current)
                 current = came_from[current]
             path.append(start)
-            return g_score[current], path[::-1]  # Reverse to get path from start to goal
+            return distance, path[::-1]
 
         for dx, dy in directions:
             neighbor = (current[0] + dx, current[1] + dy)
