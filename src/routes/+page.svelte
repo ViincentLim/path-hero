@@ -67,9 +67,9 @@
 		iconAnchor: [40, 40],
 		})
 
-		L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
+        L.imageOverlay("/images/floor/hospital_simple.png", bounds).addTo(map);
 
-		setupMapClickHandler()
+        setupMapClickHandler()
 
 		for (let exit of data.exits) {
 			createMarkerWithTooltip(exit, "This is an exit");
@@ -94,88 +94,88 @@
 		}
 	}
 
-	$: {
-    if (map) {
-      // Remove old polyline and decorator if they exist
-      if (polyline) map.removeLayer(polyline);
-      if (decorator) map.removeLayer(decorator);
+    $: {
+        if (map) {
+            // Remove old polyline and decorator if they exist
+            if (polyline) map.removeLayer(polyline);
+            if (decorator) map.removeLayer(decorator);
 
-      // Create new polyline and decorator with updated latlngs
-      polyline = L.polyline(latlngs, { color: "red" }).addTo(map);
-      decorator = L.polylineDecorator(polyline, {
-        patterns: [
-          {
-            offset: "100%",
-            repeat: 0,
-            symbol: L.Symbol.arrowHead({
-              pixelSize: 20,
-              pathOptions: { color: "red", fillOpacity: 1 },
-            }),
-          },
-        ],
-      }).addTo(map);
+            // Create new polyline and decorator with updated latlngs
+            polyline = L.polyline(latlngs, {color: "red"}).addTo(map);
+            decorator = L.polylineDecorator(polyline, {
+                patterns: [
+                    {
+                        offset: "100%",
+                        repeat: 0,
+                        symbol: L.Symbol.arrowHead({
+                            pixelSize: 20,
+                            pathOptions: {color: "red", fillOpacity: 1},
+                        }),
+                    },
+                ],
+            }).addTo(map);
+        }
     }
-  }
 
 
-	function setupMapClickHandler() {
-		map.on("click", (e) => {
-		if (placingFire) {
-			const { lat, lng } = e.latlng;
-			fireYCoords += imageHeight - lat + ",";
-			fireXCoords += lng + ",";
-			const marker = L.marker([lat, lng], { icon: fireIcon }).addTo(map);
-			fireMarkers.push(marker);
-		}
-		});
-	}
+    function setupMapClickHandler() {
+        map.on("click", (e) => {
+            if (placingFire) {
+                const {lat, lng} = e.latlng;
+                fireYCoords += imageHeight - lat + ",";
+                fireXCoords += lng + ",";
+                const marker = L.marker([lat, lng], {icon: fireIcon}).addTo(map);
+                fireMarkers.push(marker);
+            }
+        });
+    }
 
-	function clearFireMarkers() {
-		fireMarkers.forEach((marker) => map.removeLayer(marker));
-		fireMarkers = [];
-		fireXCoords = "";
-		fireYCoords = "";
-	}
+    function clearFireMarkers() {
+        fireMarkers.forEach((marker) => map.removeLayer(marker));
+        fireMarkers = [];
+        fireXCoords = "";
+        fireYCoords = "";
+    }
 
-	// Initialize map on mount
-	onMount(() => {
-		initializeMap()
-	});
+    // Initialize map on mount
+    onMount(() => {
+        initializeMap()
+    });
 
-	function createMarkerWithTooltip(location: LatLngExpression, tooltipText: string) {
-		const marker = L.circleMarker(location, {
-			radius: 40,
-			color: "transparent", 
-			fillColor: "transparent", 
-			fillOpacity: 0, // Ensures no visible fill
-		}).addTo(map);
+    function createMarkerWithTooltip(location: LatLngExpression, tooltipText: string) {
+        const marker = L.circleMarker(location, {
+            radius: 40,
+            color: "transparent",
+            fillColor: "transparent",
+            fillOpacity: 0, // Ensures no visible fill
+        }).addTo(map);
 
-		console.log(location)
+        console.log(location)
 
-		marker.bindTooltip(tooltipText, {
-			permanent: false, // Tooltip shows only on hover
-			direction: "top", // Position of the tooltip
-		});
-	}
+        marker.bindTooltip(tooltipText, {
+            permanent: false, // Tooltip shows only on hover
+            direction: "top", // Position of the tooltip
+        });
+    }
 
-	function handleSubmit() {
-		setTimeout(() => {
-			clearFireMarkers();
-			placingFire = false;
-		}, 100); // Adjust delay as needed
-	}
+    function handleSubmit() {
+        setTimeout(() => {
+            clearFireMarkers();
+            placingFire = false;
+        }, 100); // Adjust delay as needed
+    }
 </script>
 
 <div class="flex flex-col items-center pr-10 pt-4 pb-0 h-[93vh]">
-	<div class="flex w-full gap-8 items-start justify-center">
-		<div class="h-screen">
-			<a href="/add_floorplan">&#10094;</a>
-		</div>
+    <div class="flex w-full gap-8 items-start justify-center">
+        <div class="h-screen">
+            <a href="/add_floorplan">&#10094;</a>
+        </div>
 
-		<div class="w-3/4 overflow-hidden">
-			<div id="map" style="height: {displayHeight}px">
-			</div>
-		</div>
+        <div class="w-3/4 overflow-hidden">
+            <div id="map" style="height: {displayHeight}px">
+            </div>
+        </div>
 
 		<div class="flex flex-col gap-4 w-1/6">
 			<Card
@@ -212,18 +212,20 @@
 	</div>
 </div>
 <div class="w-full h-10 mr-10   flex justify-center ">
-	<div class="w-3/4 text-center flex justify-end">
-		<form method="post" class="flex justify-between items-start w-3/4 mr-4 gap-6" use:enhance onsubmit={handleSubmit}>
-			<input type="hidden" name="x" bind:value={fireXCoords}>
-			<input type="hidden" name="y" bind:value={fireYCoords}>
-			<input type="text" class="input text-lg w-full text-center" name="description" bind:value={fireDescription} placeholder="Eg. It is an electrical fire with casualties including one burned and inhaling smoke.">
-		</form>
-	</div>
-	<button class="text-5xl text-align-top  h-10" onclick={startFire}>🔥</button>
+    <div class="w-3/4 text-center flex justify-end">
+        <form method="post" class="flex justify-between items-start w-3/4 mr-4 gap-6" use:enhance
+              onsubmit={handleSubmit}>
+            <input type="hidden" name="x" bind:value={fireXCoords}>
+            <input type="hidden" name="y" bind:value={fireYCoords}>
+            <input type="text" class="input text-lg w-full text-center" name="description" bind:value={fireDescription}
+                   placeholder="Eg. It is an electrical fire with casualties including one burned and inhaling smoke.">
+        </form>
+    </div>
+    <button class="text-5xl text-align-top  h-10" onclick={startFire}>🔥</button>
 </div>
 
 <style>
-	#map {
-		background-color: white;
-	}
+    #map {
+        background-color: white;
+    }
 </style>
