@@ -129,14 +129,13 @@ def a_star_pathfinding(
 
         # Check if the current node is one of the goals
         if current in goals:
-            distance = g_score[current]
             # Reconstruct path
             path = []
             while current in came_from:
                 path.append(current)
                 current = came_from[current]
             path.append(start)
-            return distance, path[::-1]
+            return g_score[current], path[::-1]
 
         for dx, dy in directions:
             neighbor = (current[0] + dx, current[1] + dy)
