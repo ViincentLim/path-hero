@@ -1,27 +1,21 @@
 <script lang="ts">
-    import '../app.postcss';
+	import '../app.postcss'
+	import { ModeWatcher, toggleMode } from 'mode-watcher'
+	import { Toaster } from "$lib/components/ui/sonner";
+  	import Switch from '$lib/components/ui/switch/switch.svelte';
+	let { children } = $props()
+
+	let toggled = $state(false)
+
+	$effect(() => {
+		if (toggled) {}
+		toggleMode()
+	})
 </script>
 
-<div>
-    <slot/>
+<Toaster />
+<ModeWatcher />
+<div class="p-2 w-full justify-end flex">
+	<Switch bind:checked={toggled}/>
 </div>
-
-<style>
-    /*:global(.dark [data-theme='hamlindigo']) {*/
-    /*  background-image: None!important;*/
-    /*}*/
-    :global(.dark body) {
-        background: white !important;
-    }
-
-    :global(.card) {
-        border: 1px solid black !important;
-        border-radius: 12px;
-    }
-
-    :global(input::placeholder) {
-        color: gray!important;
-        font-style: italic;
-        text-align: center;
-    }
-</style>
+{@render children()}
