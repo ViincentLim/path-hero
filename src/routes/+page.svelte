@@ -1,5 +1,7 @@
 <script lang="ts">
 	import Card from "$lib/components/Card.svelte";
+    import { Button } from "$lib/components/ui/button";
+    import { Switch } from "$lib/components/ui/switch";
 	import { onMount } from "svelte"
 	import type { LatLngExpression, LatLngBoundsExpression, Map as LeafletMap, PolylineDecorator, LatLngBounds } from "leaflet"
 	import L from "leaflet"
@@ -213,11 +215,6 @@
             <a href="/add_floorplan">&#10094;</a>
         </div>
 
-        <div class="w-3/4 overflow-hidden">
-            <div id="map" style="height: {displayHeight}px">
-            </div>
-        </div>
-
         <div class="flex flex-col gap-4 w-1/6">
             <Card
                     {...{
@@ -236,27 +233,31 @@
                     }}
             />
         </div>
+		<div class="w-3/4 overflow-hidden">
+            <div id="map" style="height: {displayHeight}px">
+            </div>
+        </div>
     </div>
 </div>
 <div class="justify-center w-[auto]"
-     style="position:absolute;left: 18px; right: 18px; bottom: 20px; z-index: 1000; background: white;">
+     style="position:absolute;left: 18px; right: 18px; bottom: 20px; z-index: 1000;">
     <hr style="margin-bottom: 20px;">
     {#if data.instructions.length > 0}
-        <div style="margin-bottom: 12px; gap: 8px; display: inline-flex; flex-direction: column; padding-left: 20px; padding-right: 20px;">
+        <div style="gap: 8px; display: inline-flex; flex-direction: column; padding-left: 20px; padding-right: 20px;">
             <p>Instructions</p>
             <p style="font-size: 26px">{data.instructions[instructionIndex]}</p>
             <div class="h-1"></div>
             <div style="display:inline-flex; flex-direction: row; gap: 14px;">
-                <button class="back-button bg-transparent text-black p-2"
-                        style="border-radius: 8px; border: 1px solid black; width: fit-content;"
-                        disabled={instructionIndex === 0}
-                        onclick={()=> instructionIndex--}>Back
-                </button>
-                <button class="next-button bg-black text-white p-2"
-                        style="border-radius: 8px; border: 1px solid black; width: fit-content;"
-                        disabled={instructionIndex >= data.instructions.length - 1}
-                        onclick={()=> instructionIndex++}>Next
-                </button>
+                <Button variant="secondary"
+                disabled={instructionIndex === 0}
+                onclick={()=> instructionIndex--}>
+                    Back
+                </Button>
+                <Button
+                disabled={instructionIndex >= data.instructions.length - 1}
+                onclick={()=> instructionIndex++}>
+                    Next
+                </Button>
             </div>
             <div class="h-1"></div>
         </div>
@@ -269,7 +270,7 @@
             <input type="hidden" name="y" bind:value={fireYCoords}>
             <input type="text" class="input text-lg w-full text-center" name="description" bind:value={fireDescription}
                    placeholder="Eg. It is an electrical fire with casualties including one burned and inhaling smoke.">
-            <input type="submit" style="height: 100%; background: black; color: white; border-radius: 8px; padding-left: 8px; padding-right: 8px; cursor: pointer;">
+        <Button>Submit</Button>
         </form>
     </div>
 </div>
@@ -278,9 +279,5 @@
 <style>
     #map {
         background-color: white;
-    }
-
-    .next-button:disabled, .back-button:disabled {
-        background: lightgray;
     }
 </style>
