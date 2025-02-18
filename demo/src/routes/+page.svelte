@@ -1,29 +1,77 @@
 <script lang="ts">
     import * as Resizable from "$lib/components/ui/resizable";
+    import * as Tabs from "$lib/components/ui/tabs/index.js";
+    import * as Card from "$lib/components/ui/card/index.js";
+    import { Button } from "$lib/components/ui/button/index.js";
+    import { Input } from "$lib/components/ui/input/index.js";
+    import { Label } from "$lib/components/ui/label/index.js";
+    import hospitalImage from '$lib/images/hospital_simple.png'
+
+    console.log(hospitalImage)
 </script>
 
-<div class="w-full h-screen">
+<div class="w-full h-[95vh]">
     <Resizable.PaneGroup direction="horizontal" class="rounded-lg border">
-    <Resizable.Pane defaultSize={50}>
-        <div class="flex h-[200px] items-center justify-center p-6">
-        <span class="font-semibold">One</span>
+    <Resizable.Pane defaultSize={70}>
+        <div class="flex h-full items-center justify-center p-6">
+            <img src={hospitalImage} alt="Hospital Floor" class="w-full h-full">
         </div>
     </Resizable.Pane>
     <Resizable.Handle />
-    <Resizable.Pane defaultSize={50}>
-        <Resizable.PaneGroup direction="vertical">
-        <Resizable.Pane defaultSize={25}>
-            <div class="flex h-full items-center justify-center p-6">
-            <span class="font-semibold">Two</span>
-            </div>
-        </Resizable.Pane>
-        <Resizable.Handle />
-        <Resizable.Pane defaultSize={30}>
-            <div class="flex h-full items-center justify-center p-6">
-            <span class="font-semibold">Three</span>
-            </div>
-        </Resizable.Pane>
-        </Resizable.PaneGroup>
+    <Resizable.Pane defaultSize={25} class="flex justify-center pt-3">
+
+        <Tabs.Root value="account" class="w-[400px]">
+  <Tabs.List class="grid w-full grid-cols-2">
+    <Tabs.Trigger value="account">Account</Tabs.Trigger>
+    <Tabs.Trigger value="password">Password</Tabs.Trigger>
+  </Tabs.List>
+  <Tabs.Content value="account">
+    <Card.Root>
+      <Card.Header>
+        <Card.Title>Account</Card.Title>
+        <Card.Description>
+          Make changes to your account here. Click save when you're done.
+        </Card.Description>
+      </Card.Header>
+      <Card.Content class="space-y-2">
+        <div class="space-y-1">
+          <Label for="name">Name</Label>
+          <Input id="name" value="Pedro Duarte" />
+        </div>
+        <div class="space-y-1">
+          <Label for="username">Username</Label>
+          <Input id="username" value="@peduarte" />
+        </div>
+      </Card.Content>
+      <Card.Footer>
+        <Button>Save changes</Button>
+      </Card.Footer>
+    </Card.Root>
+  </Tabs.Content>
+  <Tabs.Content value="password">
+    <Card.Root>
+      <Card.Header>
+        <Card.Title>Password</Card.Title>
+        <Card.Description>
+          Change your password here. After saving, you'll be logged out.
+        </Card.Description>
+      </Card.Header>
+      <Card.Content class="space-y-2">
+        <div class="space-y-1">
+          <Label for="current">Current password</Label>
+          <Input id="current" type="password" />
+        </div>
+        <div class="space-y-1">
+          <Label for="new">New password</Label>
+          <Input id="new" type="password" />
+        </div>
+      </Card.Content>
+      <Card.Footer>
+        <Button>Save password</Button>
+      </Card.Footer>
+    </Card.Root>
+  </Tabs.Content>
+</Tabs.Root>
     </Resizable.Pane>
     </Resizable.PaneGroup>
       
