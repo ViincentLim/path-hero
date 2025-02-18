@@ -11,7 +11,6 @@
 		if (toggled) {}
 		toggleMode()
 	})
-	toggleMode()
 </script>
 
 <Toaster />

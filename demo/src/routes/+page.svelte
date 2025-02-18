@@ -1,2 +1,30 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+    import * as Resizable from "$lib/components/ui/resizable";
+</script>
+
+<div class="w-full h-screen">
+    <Resizable.PaneGroup direction="horizontal" class="rounded-lg border">
+    <Resizable.Pane defaultSize={50}>
+        <div class="flex h-[200px] items-center justify-center p-6">
+        <span class="font-semibold">One</span>
+        </div>
+    </Resizable.Pane>
+    <Resizable.Handle />
+    <Resizable.Pane defaultSize={50}>
+        <Resizable.PaneGroup direction="vertical">
+        <Resizable.Pane defaultSize={25}>
+            <div class="flex h-full items-center justify-center p-6">
+            <span class="font-semibold">Two</span>
+            </div>
+        </Resizable.Pane>
+        <Resizable.Handle />
+        <Resizable.Pane defaultSize={30}>
+            <div class="flex h-full items-center justify-center p-6">
+            <span class="font-semibold">Three</span>
+            </div>
+        </Resizable.Pane>
+        </Resizable.PaneGroup>
+    </Resizable.Pane>
+    </Resizable.PaneGroup>
+      
+</div>
