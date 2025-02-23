@@ -125,27 +125,35 @@
         </Tabs.Content>
 
 
-        <Tabs.Content value="monitor">
-          <Card.Root>
+        <Tabs.Content value="monitor" class="h-full">
+          <Card.Root class="h-[33%] mb-3">
             <Card.Header>
-              <Card.Title>Monitor</Card.Title>
+              <Card.Title>Analysis</Card.Title>
               <Card.Description>
-                Change your password here. After saving, you'll be logged out.
+                Path Buddy's Recommendations
               </Card.Description>
             </Card.Header>
-            <Card.Content class="space-y-2">
-              <div class="space-y-1">
-                <Label for="current">Current password</Label>
-                <Input id="current" type="password" />
+            <Card.Content class="space-y-2 h-2/3">
+              <div class="h-1/2">
+                <h1 class="bold">Compliance</h1>
+                <p>Compliance recommendation here</p>
               </div>
-              <div class="space-y-1">
-                <Label for="new">New password</Label>
-                <Input id="new" type="password" />
+              <div class="h-1/2">
+                <h1 class="bold">Metrics</h1>
+                <p>No. of People: 142</p>
               </div>
             </Card.Content>
-            <Card.Footer>
-              <Button>Save password</Button>
-            </Card.Footer>
+          </Card.Root>
+          <Card.Root class="h-[53%]">
+            <Card.Header>
+              <Card.Title>Live Feed</Card.Title>
+              <Card.Description>
+                Click room to view feed
+              </Card.Description>
+            </Card.Header>
+            <Card.Content class="space-y-2 h-2/3">
+              
+            </Card.Content>
           </Card.Root>
         </Tabs.Content>
       </Tabs.Root>
