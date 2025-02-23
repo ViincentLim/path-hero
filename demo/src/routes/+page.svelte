@@ -7,7 +7,18 @@
     import { Label } from "$lib/components/ui/label/index.js";
     import hospitalImage from '$lib/images/hospital_simple.png'
 
-    console.log(hospitalImage)
+  export let data
+
+  let taskIndex = 0
+  function incrementTaskIndex() {
+    if (taskIndex == data.instructions.length-1) { return }
+    taskIndex = taskIndex + 1
+  }
+
+  function decrementTaskIndex() {
+    if (taskIndex == 0) { return }
+    taskIndex = taskIndex - 1
+  }
 </script>
 
 <div class="w-full h-[95vh]">
@@ -19,11 +30,11 @@
     </Resizable.Pane>
     <Resizable.Handle />
     <Resizable.Pane defaultSize={25} class="flex justify-center p-3">
-        <Tabs.Root value="account" class="w-[400px]">
+        <Tabs.Root value="instructions" class="w-[400px]">
         <Tabs.List class="grid w-full grid-cols-3">
-          <Tabs.Trigger value="edit">Edit</Tabs.Trigger>
           <Tabs.Trigger value="instructions">Instructions</Tabs.Trigger>
           <Tabs.Trigger value="monitor">Monitor</Tabs.Trigger>
+          <Tabs.Trigger value="edit">Edit</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="edit">
           <Card.Root>
@@ -48,26 +59,27 @@
             </Card.Footer>
           </Card.Root>
         </Tabs.Content>
-        <Tabs.Content value="instructions">
-          <Card.Root>
+        <Tabs.Content value="instructions" class="h-full">
+          <Card.Root class="h-[40%]">
             <Card.Header>
               <Card.Title>Instructions</Card.Title>
               <Card.Description>
-                Change your password here. After saving, you'll be logged out.
+                Steps for evacuating civilians and fighting the fire.
               </Card.Description>
             </Card.Header>
-            <Card.Content class="space-y-2">
-              <div class="space-y-1">
-                <Label for="current">Current password</Label>
-                <Input id="current" type="password" />
+            <Card.Content class="space-y-2 h-2/3">
+              <div class="h-2/3">
+                <h1>Task</h1>
+                <p>{data.instructions[taskIndex]}</p>
               </div>
-              <div class="space-y-1">
-                <Label for="new">New password</Label>
-                <Input id="new" type="password" />
+              <div class="h-1/3">
+                <h1>Route</h1>
+                <p>{JSON.stringify(data.routes[taskIndex])}</p>
               </div>
             </Card.Content>
-            <Card.Footer>
-              <Button>Save password</Button>
+            <Card.Footer class="flex gap-2">
+              <Button onclick={decrementTaskIndex} variant="secondary" disabled={taskIndex==0}>Back</Button>
+              <Button onclick={incrementTaskIndex} disabled={taskIndex==data.instructions.length-1}>Next</Button>
             </Card.Footer>
           </Card.Root>
         </Tabs.Content>
