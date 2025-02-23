@@ -57,12 +57,15 @@
             </Card.Header>
             <Card.Content class="space-y-2">
               <div class="space-y-1">
-                <Label for="name">Add</Label>
-                <Input id="name" value="Pedro Duarte" />
+                <Label for="name">Name</Label>
+                <Input id="name" placeholder="eg. CO2 extinguisher" />
               </div>
               <div class="space-y-1">
-                <Label for="username">Username</Label>
-                <Input id="username" value="@peduarte" />
+                <Label for="coordinates">Coordinates</Label>
+                <!-- Maybe add coord markers on map? -->
+                <Input id="coordinates" placeholder="X coordinates" />
+                <Input id="coordinates" placeholder="Y coordinates" />
+                <p class="text-sm italic">*or click on map to add item</p>
               </div>
             </Card.Content>
             <Card.Footer class="flex gap-2">
