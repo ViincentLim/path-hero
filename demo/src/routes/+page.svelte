@@ -19,6 +19,23 @@
     if (taskIndex == 0) { return }
     taskIndex = taskIndex - 1
   }
+
+  let questionInput = ""
+  let question = "Enter question in input box below!"
+  let response = "Waiting for questions..."
+  let responseArray = []
+
+  function handleSubmitAIQuery() {
+    question = questionInput
+    response = btoa(question)
+    responseArray = response.split("")
+    for (let i = 0; i < responseArray.length; i++) {
+      if (i % 10 == 0) {
+        responseArray[i] = " "
+      }
+    }
+    response = responseArray.join("")
+  }
 </script>
 
 <div class="w-full h-[95vh]">
@@ -60,7 +77,7 @@
           </Card.Root>
         </Tabs.Content>
         <Tabs.Content value="instructions" class="h-full">
-          <Card.Root class="h-[40%]">
+          <Card.Root class="h-[40%] mb-3">
             <Card.Header>
               <Card.Title>Instructions</Card.Title>
               <Card.Description>
@@ -82,7 +99,32 @@
               <Button onclick={incrementTaskIndex} disabled={taskIndex==data.instructions.length-1}>Next</Button>
             </Card.Footer>
           </Card.Root>
+
+          <Card.Root class="h-[53%]">
+            <Card.Header>
+              <Card.Title>Chat</Card.Title>
+              <Card.Description>
+                Ask assistant for help in real time!
+              </Card.Description>
+            </Card.Header>
+            <Card.Content class="space-y-2 h-2/3">
+              <div class="h-1/3">
+                <h1 class="bold">Question</h1>
+                <p>{question}</p>
+              </div>
+              <div class="h-2/3">
+                <h1 class="bold">Response</h1>
+                <p>{response}</p>
+              </div>
+            </Card.Content>
+            <Card.Footer class="flex gap-2">
+              <Input bind:value={questionInput} />
+              <Button onclick={handleSubmitAIQuery}>Submit</Button>
+            </Card.Footer>
+          </Card.Root>
         </Tabs.Content>
+
+
         <Tabs.Content value="monitor">
           <Card.Root>
             <Card.Header>
