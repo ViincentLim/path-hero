@@ -22,19 +22,13 @@
 
   let questionInput = ""
   let question = "Enter question in input box below!"
-  let response = "Waiting for questions..."
-  let responseArray = []
+  let responses = ["Waiting for questions...", "Response 1", "Response 2", "Response 3", "Response 4"]
+  let responseIndex = 0
 
   function handleSubmitAIQuery() {
     question = questionInput
-    response = btoa(question)
-    responseArray = response.split("")
-    for (let i = 0; i < responseArray.length; i++) {
-      if (i % 10 == 0) {
-        responseArray[i] = " "
-      }
-    }
-    response = responseArray.join("")
+    questionInput = ""
+    responseIndex = (responseIndex + 1) % responses.length
   }
 </script>
 
@@ -58,12 +52,12 @@
             <Card.Header>
               <Card.Title>Edit</Card.Title>
               <Card.Description>
-                Make changes to your account here. Click save when you're done.
+                Make changes to your map here. Click save when you're done.
               </Card.Description>
             </Card.Header>
             <Card.Content class="space-y-2">
               <div class="space-y-1">
-                <Label for="name">Name</Label>
+                <Label for="name">Add</Label>
                 <Input id="name" value="Pedro Duarte" />
               </div>
               <div class="space-y-1">
@@ -71,7 +65,8 @@
                 <Input id="username" value="@peduarte" />
               </div>
             </Card.Content>
-            <Card.Footer>
+            <Card.Footer class="flex gap-2">
+              <Button variant="secondary">Reset</Button>
               <Button>Save changes</Button>
             </Card.Footer>
           </Card.Root>
@@ -114,7 +109,7 @@
               </div>
               <div class="h-2/3">
                 <h1 class="bold">Response</h1>
-                <p>{response}</p>
+                <p>{responses[responseIndex]}</p>
               </div>
             </Card.Content>
             <Card.Footer class="flex gap-2">
